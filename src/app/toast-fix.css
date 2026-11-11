@@ -1,0 +1,47 @@
+/* Toast Z-Index Fix - Maximum Priority */
+:root {
+  --toastify-z-index: 2147483647;
+}
+
+/* Force maximum z-index for all toast containers */
+.Toastify__toast-container,
+body .Toastify__toast-container,
+html .Toastify__toast-container,
+#__next .Toastify__toast-container,
+#wrapper .Toastify__toast-container,
+div[class*='Toastify__toast-container'] {
+  z-index: 2147483647 !important;
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+/* Ensure toasts appear above all modals */
+.Toastify__toast {
+  z-index: 2147483647 !important;
+  position: relative !important;
+}
+
+/* Override any conflicting z-index values */
+body > div[class*='Toastify'],
+#__next > div[class*='Toastify'],
+#wrapper > div[class*='Toastify'],
+div[class*='Toastify__toast-container'],
+.Toastify__toast-container {
+  z-index: 2147483647 !important;
+}
+
+/* Force z-index on all toast elements */
+.Toastify__toast,
+.Toastify__toast--success,
+.Toastify__toast--error,
+.Toastify__toast--info,
+.Toastify__toast--warning {
+  z-index: 2147483647 !important;
+}
+
+/* Ensure toast container always has maximum z-index */
+[class*='Toastify__toast-container'] {
+  z-index: 2147483647 !important;
+}

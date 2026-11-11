@@ -1,0 +1,253 @@
+/**
+ * PhotoSwipe gallery overrides - static CSS to avoid runtime style injection.
+ */
+
+.pswp__button--arrow--prev,
+.pswp__button--arrow--next {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.pswp__button--arrow--prev {
+  left: 20px !important;
+}
+
+.pswp__button--arrow--next {
+  right: 20px !important;
+}
+
+/*
+ * NOTE: do NOT constrain `.pswp__img` with max-width/max-height.
+ * PhotoSwipe sizes the <img> inline and centres it with a transform computed from
+ * those exact dimensions. Overriding them shrinks the painted image while the
+ * centring transform still uses the original box, so the image renders visibly
+ * off-centre (shifted left) — most obvious on mobile. Use the `padding` option in
+ * the Gallery config for breathing room instead.
+ */
+
+/*
+ * Light lightbox theme.
+ * PhotoSwipe v5 exposes these CSS variables, so we re-theme via them rather than
+ * fighting the stylesheet with !important. Default is a black backdrop with white
+ * icons; we invert to a soft near-white backdrop with dark icons.
+ */
+.pswp {
+  --pswp-bg: #f4f4f5; /* soft neutral, not pure white — keeps white-background
+                         product photos from blending into the backdrop */
+  --pswp-icon-color: #18181b; /* dark icons, readable on the light backdrop */
+  --pswp-icon-color-secondary: #ffffff;
+  --pswp-icon-stroke-color: #ffffff;
+  --pswp-icon-stroke-width: 2px;
+}
+
+/* Frosted-glass backdrop so the page behind reads as a soft blur */
+.pswp__bg {
+  backdrop-filter: blur(12px);
+}
+
+/*
+ * Give the image definition against the light backdrop.
+ * Purely cosmetic properties only — never size/position ones, which would break
+ * PhotoSwipe's centring math (see the note above).
+ */
+.pswp__img {
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.14);
+}
+
+/*
+ * Glass treatment for the top-bar controls only.
+ * NOT applied to the arrows: their button box is 75x100px, so a pill radius there
+ * renders as a large oval blob. Arrows keep PhotoSwipe's default geometry.
+ */
+.pswp__button--close,
+.pswp__button--zoom {
+  border-radius: 9999px;
+  background-color: rgb(24 24 27 / 0.06) !important;
+  backdrop-filter: blur(6px);
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.pswp__button--close:hover,
+.pswp__button--zoom:hover {
+  background-color: rgb(24 24 27 / 0.14) !important;
+  transform: scale(1.06);
+}
+
+/*
+ * Arrow hover scale.
+ * IMPORTANT: PhotoSwipe draws the NEXT arrow as the same chevron flipped with
+ * `transform: scale(-1, 1)`. A plain `scale(1.08)` here overwrites that flip and the
+ * right arrow visibly turns into a left arrow on hover — so the next arrow must keep
+ * a negative X scale.
+ */
+.pswp__button--arrow .pswp__icn {
+  transition: transform 0.2s ease;
+}
+
+.pswp__button--arrow--prev:hover .pswp__icn {
+  transform: scale(1.08);
+}
+
+.pswp__button--arrow--next:hover .pswp__icn {
+  transform: scale(-1.08, 1.08);
+}
+
+.pswp__counter {
+  border-radius: 9999px;
+  background-color: rgb(24 24 27 / 0.06);
+  color: #18181b;
+  backdrop-filter: blur(6px);
+  padding: 0 0.75rem;
+  margin-inline-start: 0.5rem;
+  opacity: 1;
+  text-shadow: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Animated slide indicator (dots), shown on desktop AND mobile.
+ * Registered as a custom PhotoSwipe UI element (see `uiElements` in
+ * details-thumb-wrapper.jsx) and appended to the scroll wrapper.
+ */
+.pswp-dots {
+  position: absolute;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 9999px;
+  background-color: rgb(24 24 27 / 0.06);
+  backdrop-filter: blur(6px);
+  max-width: calc(100vw - 32px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.pswp-dots::-webkit-scrollbar {
+  display: none;
+}
+
+.pswp-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 9999px;
+  cursor: pointer;
+  background-color: rgb(24 24 27 / 0.28);
+  transition:
+    width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.3s ease;
+}
+
+.pswp-dot:hover {
+  background-color: rgb(24 24 27 / 0.5);
+}
+
+/* Active dot animates out into a pill */
+.pswp-dot.is-active {
+  width: 26px;
+  background-color: #18181b;
+}
+
+/*
+ * Mobile: arrows stay visible (PhotoSwipe hides them on touch by default — the
+ * visibility override at the top of this file re-enables them), but its default
+ * arrow box is 75x100px, which lands squarely on top of the product photo on a
+ * narrow screen. Shrink them into compact circular controls pinned to the edges.
+ *
+ * The arrow SVG is generated at a fixed size of 60px, so the icon box must be
+ * resized AND the svg scaled to 100% — resizing alone would clip it (the icon has
+ * `overflow: hidden`).
+ */
+@media (max-width: 640px) {
+  .pswp__button--arrow {
+    width: 40px;
+    height: 40px;
+    margin-top: -20px;
+  }
+
+  .pswp__button--arrow .pswp__icn {
+    top: 50%;
+    width: 40px;
+    height: 40px;
+    margin-top: -20px;
+    border-radius: 9999px;
+    background-color: rgb(24 24 27 / 0.06);
+    backdrop-filter: blur(6px);
+  }
+
+  /* Anchor each side separately — the next arrow is right-anchored by PhotoSwipe
+     (`left: auto; right: 14px`), so a blanket `left: 0` would shove it off-centre. */
+  .pswp__button--arrow--prev .pswp__icn {
+    left: 0;
+    right: auto;
+  }
+
+  .pswp__button--arrow--next .pswp__icn {
+    left: auto;
+    right: 0;
+  }
+
+  .pswp__button--arrow svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .pswp__button--arrow--prev {
+    left: 6px !important;
+  }
+
+  .pswp__button--arrow--next {
+    right: 6px !important;
+  }
+
+  .pswp-dots {
+    gap: 6px;
+    padding: 6px 10px;
+  }
+
+  .pswp-dot {
+    width: 7px;
+    height: 7px;
+  }
+
+  .pswp-dot.is-active {
+    width: 22px;
+  }
+}
+
+.vertical-thumbnails-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.vertical-thumbnails-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.vertical-thumbnails-scroll::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--border));
+  border-radius: 3px;
+}
+
+.vertical-thumbnails-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--primary) / 0.5);
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

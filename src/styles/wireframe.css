@@ -1,0 +1,1879 @@
+/* ==========================================================================
+   Editorial storefront layout — ported from wireframe/styles-2.css (Design 2)
+   with the category page's sidebar/filter system from Design 1.
+
+   Structure, spacing and typographic scale come from the wireframe. Colour does
+   NOT: the three brand tokens below are injected at runtime from
+   brand.config.json (see components/wireframe/brand-theme.tsx), so each store
+   reads as its own brand rather than a copy of the wireframe.
+
+   Class names deliberately match the wireframe HTML so the two stay comparable.
+   ========================================================================== */
+
+:root {
+  /* Brand-driven — overridden per store by <BrandTheme /> */
+  --wf-deep: #1f2a36; /* dark brand colour: header text, footer, trust bar */
+  --wf-brand: #2c3a49; /* primary brand colour: buttons, links */
+  --wf-accent: #bd9b5a; /* accent: eyebrows, rules, prices, stars */
+  --wf-accent-deep: #9a7c3f; /* accent, darkened for text on light ground */
+
+  /* Neutral editorial ground — brand-agnostic so any palette sits on it */
+  --wf-cream: #faf8f4;
+  --wf-cream-2: #f1ede4;
+  --wf-paper: #ffffff;
+  --wf-ink: #20262c;
+  --wf-ink-soft: #5a6066;
+  --wf-line: #e4ded1;
+  /* Velvet Rose in the brand palette: sale labels, hover states, ratings and
+     small highlights, plus the warning states (low stock, an unserviceable
+     pincode) that already used it. Overridden by <BrandTheme /> from
+     `theme.highlight`; this value is only the brand-neutral fallback. */
+  --wf-sale: #b5654a;
+  --wf-was: #c0392b; /* the rule struck through a was-price */
+  --wf-now: #1e7a4b; /* the price actually being charged */
+
+  /*
+    The page gutter, as one value.
+
+    `.wf-wrap` pads by it and anything that wants to run edge to edge cancels
+    it with a negative margin of the same size. That pairing used to be two
+    hardcoded 28s with a comment asking whoever changed one to remember the
+    other; this makes forgetting impossible.
+  */
+  --wf-gutter: 28px;
+
+  --wf-shadow: 0 14px 40px rgb(31 42 54 / 12%);
+  --wf-shadow-sm: 0 4px 18px rgb(31 42 54 / 8%);
+
+  --wf-serif: var(--font-display, 'Fraunces'), 'Playfair Display', Georgia, serif;
+  --wf-sans: var(--font-lato), 'Jost', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+
+  --wf-radius: 4px;
+  --wf-radius-sm: 3px;
+  --wf-maxw: 1300px;
+}
+
+/* Scope layout rules to .wf. BrandTheme separately shares this palette through
+   the global semantic tokens used by checkout, cart, drawers and dialogs. */
+.wf {
+  font-family: var(--wf-sans);
+  color: var(--wf-ink);
+  background: var(--wf-cream);
+  line-height: 1.65;
+  font-size: 15px;
+}
+.wf img { max-width: 100%; display: block; }
+.wf a { color: inherit; text-decoration: none; }
+
+.wf-wrap { max-width: var(--wf-maxw); margin: 0 auto; padding: 0 var(--wf-gutter); }
+
+.wf h1, .wf h2, .wf h3 {
+  font-family: var(--wf-serif);
+  font-weight: 500;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.wf h1 { font-size: clamp(1.85rem, 3.4vw, 2.75rem); line-height: 1.12; }
+.wf h2 { font-size: clamp(1.4rem, 2.2vw, 1.9rem); line-height: 1.2; }
+
+.wf-eyebrow {
+  font-family: var(--wf-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.32em;
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--wf-accent-deep);
+}
+
+/* ---------- Announcement ---------- */
+.wf-announce {
+  background: var(--wf-deep);
+  color: #f0ece2;
+  text-align: center;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 9px 12px;
+}
+.wf-announce b { color: var(--wf-accent); }
+
+/* ---------- Header + mega menu ---------- */
+.wf-header {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  background: var(--wf-cream);
+  border-bottom: 1px solid var(--wf-line);
+}
+.wf-header-inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 28px;
+  max-width: var(--wf-maxw);
+  margin: 0 auto;
+}
+.wf-nav-left, .wf-nav-right { display: flex; align-items: center; gap: 28px; }
+.wf-nav-right { justify-content: flex-end; }
+.wf-nav-left > a, .wf-nav-right > a, .wf-nav-left .wf-has-mega > a {
+  font-size: 0.76rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--wf-ink);
+  padding: 6px 0;
+  position: relative;
+}
+.wf-nav-left > a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 0;
+  background: var(--wf-accent);
+  transition: width 0.25s;
+}
+.wf-nav-left > a:hover::after { width: 100%; }
+.wf-brand {
+  font-family: var(--wf-serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.04em;
+  color: var(--wf-deep);
+}
+.wf-brand i { color: var(--wf-accent); font-style: normal; }
+.wf-icon-btn {
+  background: none;
+  border: none;
+  font-size: 1.05rem;
+  color: var(--wf-ink);
+  position: relative;
+  padding: 4px;
+}
+.wf-cart-count {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background: var(--wf-sale);
+  color: #fff;
+  font-size: 0.58rem;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.wf-has-mega { position: static; }
+.wf-mega {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  background: var(--wf-paper);
+  border-top: 1px solid var(--wf-line);
+  box-shadow: var(--wf-shadow);
+  display: none;
+  padding: 34px 0;
+}
+.wf-has-mega:hover .wf-mega, .wf-has-mega:focus-within .wf-mega { display: block; }
+.wf-mega-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) 1.2fr;
+  gap: 30px;
+  max-width: var(--wf-maxw);
+  margin: 0 auto;
+  padding: 0 28px;
+}
+.wf-mega-col h5 {
+  font-family: var(--wf-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--wf-accent-deep);
+  margin: 0 0 14px;
+}
+.wf-mega-col a {
+  display: block;
+  font-size: 0.86rem;
+  color: var(--wf-ink-soft);
+  padding: 5px 0;
+}
+.wf-mega-col a:hover { color: var(--wf-accent-deep); }
+.wf-mega-feature {
+  border-radius: var(--wf-radius);
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--wf-cream-2);
+}
+.wf-mega-feature img { width: 100%; height: 100%; object-fit: cover; }
+.wf-mega-feature .cap {
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  color: #fff;
+  text-shadow: 0 1px 12px rgb(0 0 0 / 55%);
+}
+.wf-mega-feature .cap b { font-family: var(--wf-serif); font-size: 1.2rem; display: block; }
+
+/* ---------- Buttons ---------- */
+.wf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 14px 30px;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 600;
+  transition: all 0.22s;
+  cursor: pointer;
+}
+.wf-btn[disabled] { opacity: 0.55; cursor: not-allowed; }
+
+/* Each variant is prefixed with `.wf` so it out-ranks `.wf a { color: inherit }`
+   (0,1,1) above. Without that, a button rendered as a link inside a light-on-dark
+   section inherits white text — e.g. white-on-white on the hero CTA. */
+.wf .wf-btn-primary { background: var(--wf-deep); color: var(--wf-cream); }
+.wf .wf-btn-primary:hover:not([disabled]) { background: var(--wf-brand); color: var(--wf-cream); }
+/* The call to action carries the brand colour, not the accent.
+   Gold on cream is a hairline colour — it reads as decoration, and a whole
+   button of it competes with the photograph instead of standing out against
+   it. The deep brand colour is the one thing on the page darker than the
+   product shots, so it is what the eye lands on. Gold stays for eyebrows,
+   rules and stars, where thin marks are exactly what it is good at. */
+.wf .wf-btn-accent { background: var(--wf-brand); color: #fff; }
+.wf .wf-btn-accent:hover:not([disabled]) { background: var(--wf-deep); color: #fff; }
+.wf .wf-btn-outline { background: transparent; color: var(--wf-ink); border-color: var(--wf-ink); }
+.wf .wf-btn-outline:hover:not([disabled]) { background: var(--wf-ink); color: var(--wf-cream); }
+.wf .wf-btn-light { background: #fff; color: var(--wf-deep); }
+.wf .wf-btn-light:hover:not([disabled]) { background: var(--wf-accent); color: #fff; }
+.wf-btn-block { width: 100%; }
+.wf-link-arrow {
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--wf-accent-deep);
+  border-bottom: 1px solid var(--wf-accent);
+  padding-bottom: 3px;
+  white-space: nowrap;
+}
+
+/* ---------- Badges / ratings ---------- */
+.wf-badge {
+  display: inline-block;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  border-radius: 2px;
+}
+.wf-badge-best { background: var(--wf-deep); color: #fff; }
+.wf-badge-new { background: var(--wf-accent); color: #fff; }
+.wf-badge-sale { background: var(--wf-sale); color: #fff; }
+.wf-badge-gift { background: var(--wf-cream-2); color: var(--wf-accent-deep); border: 1px solid var(--wf-accent); }
+.wf-stars { color: var(--wf-sale); letter-spacing: 2px; font-size: 0.82rem; }
+.wf-rating-row { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--wf-ink-soft); }
+
+/* ---------- Sections ---------- */
+.wf-section { padding: 58px 0; }
+.wf-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  gap: 20px;
+}
+.wf-section-head .htext h2 { margin-top: 8px; }
+.wf-section-head.center { display: block; text-align: center; }
+.wf-section-head.center .htext { max-width: 620px; margin: 0 auto; }
+
+/* ---------- Filter pending state ----------
+   Filtering is a server round-trip. These give the control something to show
+   the moment it is pressed, so it does not read as broken on a slow connection
+   and get tapped again. */
+.wf-filters.pending { opacity: 0.65; pointer-events: none; }
+.wf-filter-cat-list a.busy,
+.wf-colour-opt.busy,
+.wf-chip.busy,
+.wf-clear-all.busy { opacity: 0.55; }
+.wf-filter-cat-list a.busy,
+.wf-colour-opt.busy { position: relative; }
+.wf-colour-opt.busy .wf-colour-dot {
+  animation: wf-pulse 0.9s ease-in-out infinite;
+}
+@keyframes wf-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wf-colour-opt.busy .wf-colour-dot { animation: none; }
+}
+
+/* ---------- Size guide dialog ---------- */
+.wf-sg-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: rgb(0 0 0 / 55%);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.wf-sg-panel {
+  width: min(720px, 100%);
+  max-height: min(86vh, 760px);
+  display: flex;
+  flex-direction: column;
+  background: var(--wf-paper);
+  border-radius: var(--wf-radius);
+  box-shadow: 0 24px 64px rgb(0 0 0 / 32%);
+  outline: none;
+}
+.wf-sg-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--wf-line);
+}
+.wf .wf-sg-head h2 {
+  margin: 0;
+  font-family: var(--wf-sans);
+  font-size: 0.86rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.wf-sg-head button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--wf-line);
+  border-radius: 50%;
+  background: var(--wf-paper);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--wf-ink);
+}
+.wf-sg-body { overflow-y: auto; padding: 22px; display: grid; gap: 26px; }
+.wf .wf-sg-body h3 {
+  margin: 0 0 10px;
+  font-family: var(--wf-sans);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+/* Wide tables scroll inside their own box rather than the page. */
+.wf-sg-table-wrap { overflow-x: auto; border: 1px solid var(--wf-line); border-radius: var(--wf-radius-sm); }
+.wf-sg-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; min-width: 340px; }
+.wf-sg-table th, .wf-sg-table td { padding: 10px 14px; text-align: left; }
+.wf-sg-table thead th {
+  background: var(--wf-cream-2);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wf-accent-deep);
+}
+.wf-sg-table tbody tr + tr { border-top: 1px solid var(--wf-line); }
+.wf-sg-table tbody th { font-weight: 700; }
+.wf-sg-note { margin: 10px 0 0; font-size: 0.82rem; color: var(--wf-ink-soft); }
+.wf-sg-note a { color: var(--wf-accent-deep); text-decoration: underline; }
+.wf-sg-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.wf-sg-steps li { display: flex; gap: 12px; font-size: 0.86rem; line-height: 1.55; }
+.wf-sg-steps .n {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--wf-deep);
+  color: var(--wf-cream);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+.wf-sg-foot {
+  margin: 0;
+  padding-top: 4px;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--wf-ink-soft);
+}
+
+/* ---------- Sticky category strip (product page) ----------
+   Sits directly under the site header, which is `sticky top-0 z-50`. This sits
+   below it in z-order so the header's shadow falls over it, and scrolls
+   horizontally so the bar is one line tall however many categories exist. */
+.wf-cat-strip {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--wf-paper);
+  border-bottom: 1px solid var(--wf-line);
+}
+.wf-cat-strip-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 16px;
+  max-width: 1240px;
+  margin: 0 auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.wf-cat-strip-scroll::-webkit-scrollbar { display: none; }
+.wf .wf-cat-pill {
+  flex: none;
+  padding: 7px 15px;
+  border: 1px solid var(--wf-line);
+  border-radius: 30px;
+  background: var(--wf-cream);
+  color: var(--wf-ink-soft);
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.wf .wf-cat-pill:hover { border-color: var(--wf-accent); color: var(--wf-accent-deep); }
+.wf .wf-cat-pill.on {
+  background: var(--wf-deep);
+  border-color: var(--wf-deep);
+  color: var(--wf-cream);
+  font-weight: 600;
+}
+
+/* ---------- Product card ---------- */
+.wf-product-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+.wf-product-scroller {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(240px, 288px);
+  justify-content: start;
+  gap: 24px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  scroll-snap-type: x mandatory;
+}
+.wf-product-scroller::-webkit-scrollbar { height: 6px; }
+.wf-product-scroller::-webkit-scrollbar-thumb { background: var(--wf-line); border-radius: 6px; }
+.wf-product-scroller .wf-product-card { scroll-snap-align: start; }
+
+/* No border and no card ground: the photograph is the card.
+   A hairline box around every tile drew a grid of rectangles over a page
+   that already had a grid, and the white panel behind the picture made a
+   second edge inside the first. Both gone, so the products sit straight on
+   the page and the images read as large as they are. */
+.wf-product-card {
+  background: transparent;
+  border: none;
+  border-radius: var(--wf-radius);
+  overflow: hidden;
+  transition: transform 0.25s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.wf-product-card:hover { transform: translateY(-4px); }
+/* Taller frame and no inner padding: the photograph fills as much of the card as
+   it can while `contain` still guarantees nothing is cropped. The surface matches
+   the card body rather than #fff, so the letterboxing a portrait shot leaves at
+   the sides reads as part of the card instead of a white slab sitting on it. */
+.wf-product-media {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  background: var(--wf-paper);
+  overflow: hidden;
+}
+.wf-product-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 0;
+  transition: transform 0.55s;
+}
+.wf-product-card:hover .wf-product-media img { transform: scale(1.04); }
+.wf-product-flags { position: absolute; top: 12px; left: 12px; display: flex; flex-direction: column; gap: 6px; z-index: 2; }
+.wf-gift-flag {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--wf-deep);
+  color: var(--wf-cream);
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 7px;
+}
+.wf-wishlist {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgb(255 255 255 / 92%);
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.9rem;
+  z-index: 2;
+  cursor: pointer;
+}
+.wf-wishlist[aria-pressed='true'] { color: var(--wf-sale); }
+.wf-quick-add { margin-top: 8px; }
+.wf-quick-add .wf-btn {
+  padding: 10px 14px;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+}
+/* Title, price and button sit as one tight block under the photograph — the
+   generous spacing this had made the card mostly whitespace on a phone. */
+.wf-product-body {
+  /* No side padding now there is no card edge to sit inside — the title
+     lines up with the edge of the photograph above it. */
+  padding: 8px 0 2px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.wf-product-body .wf-quick-add { margin-top: auto; padding-top: 8px; }
+/* Also needs to out-rank `.wf h1, .wf h2, .wf h3 { margin: 0 }` above. */
+.wf h3.wf-product-title,
+.wf .wf-product-title {
+  font-family: var(--wf-sans);
+  font-size: 0.88rem;
+  margin: 0 0 2px;
+  line-height: 1.35;
+  font-weight: 600;
+  /* Two lines then an ellipsis. Titles here run to eight or nine words and a
+     long one pushed the price out of line with its neighbour in the grid;
+     clamping keeps every card in a row the same height. The fixed min-height
+     holds the row steady when a title only needs one line. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: calc(2 * 1.35em);
+}
+.wf-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+/* The was-price leads, struck through in red, so the eye reads the drop
+   left to right: what it was, what it is, what you keep. */
+.wf-price-old {
+  order: -1;
+  text-decoration: line-through;
+  text-decoration-color: var(--wf-was);
+  text-decoration-thickness: 1.5px;
+  /* Black, not grey. Grey read as disabled text and the was-price all but
+     disappeared beside the green one — which defeats the comparison the
+     strikethrough exists to make. The red rule is what marks it as struck;
+     the number itself does not also need to be faded. */
+  color: var(--wf-ink);
+  font-size: 0.8rem;
+}
+.wf-price { font-weight: 700; font-size: 1rem; color: var(--wf-now); }
+/* The saving sits in a pill so it reads as a stamp on the price rather than
+   a third number competing with the other two.
+   Solid brand wine, not green: the price beside it is already green, and two
+   greens in one row read as one thing said twice. Wine ties the stamp to the
+   buttons and the ribbon instead, and is the only dark mark in the row. */
+.wf-price-off {
+  color: #fff;
+  background: var(--wf-sale);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  line-height: 1.6;
+}
+/* Shown in place of the button on the button-less card. */
+.wf-stock-note {
+  margin: 4px 0 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--wf-sale);
+}
+
+/* ---------- Trust bar ---------- */
+/* Sits at the foot of the page as a quiet reassurance strip, so it uses the
+   tinted surface rather than the deep brand colour — at full strength it read
+   as a second footer and competed with the real one.
+   Each mark sits in a white disc with a hairline rule between items: without
+   them the six pairs floated in a lot of empty space and read as unrelated. */
+.wf-trust-bar {
+  background: var(--wf-cream-2);
+  border-top: 1px solid var(--wf-line);
+  border-bottom: 1px solid var(--wf-line);
+  color: var(--wf-ink);
+  /* The footer is painted with the same surfaceAlt tint, so without a gap the
+     two run together as one block divided only by a hairline. This lets the
+     page ground show through and reads the strip as its own band. */
+  margin-bottom: 56px;
+}
+.wf-trust-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  padding: 34px 0;
+}
+.wf-trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  padding: 4px 12px;
+  border-left: 1px solid var(--wf-line);
+}
+.wf-trust-item:first-child { border-left: 0; }
+.wf-trust-item .ic {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid var(--wf-line);
+  color: var(--wf-accent-deep);
+}
+.wf-trust-item .ic svg { width: 22px; height: 22px; display: block; }
+.wf-trust-item .t {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  line-height: 1.35;
+  color: var(--wf-ink);
+}
+.wf-trust-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 22px 14px;
+  padding: 30px 0;
+  text-align: center;
+}
+.wf-trust-item { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.wf-trust-item .ic { color: var(--wf-accent-deep); }
+.wf-trust-item .ic svg { width: 26px; height: 26px; display: block; }
+.wf-trust-item .t {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--wf-ink);
+}
+
+/* ---------- Footer ---------- */
+.wf-footer { background: var(--wf-deep); color: #cac4b4; }
+.wf-footer-top { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 40px; padding: 70px 0 50px; }
+.wf-footer-brand .wf-brand { color: #fff; text-align: left; }
+.wf-footer-brand p { font-size: 0.85rem; color: #a29c8e; margin: 16px 0 22px; max-width: 320px; }
+.wf-footer-col h4 {
+  font-family: var(--wf-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--wf-accent);
+  margin-bottom: 18px;
+}
+.wf-footer-col a { display: block; font-size: 0.85rem; color: #bdb7a8; padding: 6px 0; }
+.wf-footer-col a:hover { color: #fff; }
+.wf-news-form { display: flex; max-width: 340px; border: 1px solid rgb(255 255 255 / 22%); border-radius: 2px; overflow: hidden; }
+.wf-news-form input { flex: 1; padding: 13px 16px; border: none; background: rgb(255 255 255 / 8%); color: #f1ece2; font-size: 0.85rem; }
+.wf-news-form button { border-radius: 0; }
+.wf-footer-bottom {
+  border-top: 1px solid rgb(255 255 255 / 14%);
+  padding: 22px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.74rem;
+  color: #918b7d;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.wf-social { display: flex; gap: 14px; font-size: 1rem; }
+
+/* ---------- Breadcrumb ---------- */
+.wf-breadcrumb { font-size: 0.74rem; color: var(--wf-ink-soft); padding: 22px 0 8px; text-transform: uppercase; }
+.wf-breadcrumb a:hover { color: var(--wf-accent-deep); }
+.wf-breadcrumb span { color: var(--wf-accent); margin: 0 8px; }
+
+/* ==========================================================================
+   HOME
+   ========================================================================== */
+.wf-hero {
+  position: relative;
+  min-height: 86vh;
+  display: flex;
+  align-items: flex-end;
+  background: var(--wf-deep);
+  color: #fff;
+  overflow: hidden;
+}
+.wf-hero-bg { position: absolute; inset: 0; z-index: 0; }
+.wf-hero-bg img { width: 100%; height: 100%; object-fit: cover; }
+.wf-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(0 0 0 / 15%), rgb(0 0 0 / 62%));
+  z-index: 1;
+}
+.wf-hero .wf-wrap { position: relative; z-index: 2; }
+.wf-hero-content { padding-bottom: 64px; max-width: 720px; }
+.wf-hero .wf-eyebrow { color: var(--wf-accent); }
+.wf-hero h1 { color: #fff; margin: 14px 0 18px; }
+.wf-hero p { font-size: 0.95rem; color: #efeadf; max-width: 460px; margin-bottom: 30px; }
+.wf-hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+.wf-hero-side { position: absolute; right: 28px; bottom: 64px; z-index: 2; text-align: right; color: #efeadf; }
+.wf-hero-side small {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* A solid dark band directly under the hero.
+   Tinted cream, this strip sat between a cream hero and a cream product grid
+   and did nothing: three near-identical surfaces in a row. Dark, it separates
+   the hero from the shop and gives the page one deliberate full-width stop. */
+.wf-ribbon {
+  background: var(--wf-deep);
+  border-top: none;
+  border-bottom: none;
+  padding: 16px 0;
+  text-align: center;
+}
+.wf-ribbon .lead { font-family: var(--wf-serif); font-size: 1.02rem; color: var(--wf-accent); letter-spacing: 0.04em; }
+.wf-ribbon .sub {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  /* Cream at 70% rather than a grey: a neutral grey goes muddy on a coloured
+     dark ground, where the ground's own tint shows through instead. */
+  color: rgb(253 248 244 / 70%);
+  margin-top: 4px;
+}
+
+/* Editorial arrangement: one tall lead tile beside a 2x2 of the rest. The card
+   treatment is unchanged — whole photograph on white, name on a bordered plate
+   below — only the footprint differs, so nothing gets cropped. */
+.wf-collections {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 18px;
+  min-height: 580px;
+}
+.wf-col-tile {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* Borderless, same as the product cards — the photograph is the tile. */
+  border: none;
+  border-radius: var(--wf-radius);
+  overflow: hidden;
+  background: transparent;
+  transition: transform 0.25s;
+}
+.wf-col-tile.big { grid-row: span 2; }
+.wf-col-tile:hover {
+  border-color: var(--wf-accent);
+  box-shadow: 0 10px 28px -20px rgb(16 22 30 / 45%);
+}
+/* Takes whatever height the tile has left after the caption, so the lead tile
+   simply gets a taller picture rather than a different crop. */
+.wf-col-tile .bg {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  background: #fff;
+  overflow: hidden;
+}
+.wf-col-tile .bg img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* Still `contain`, so a category shot is never cropped — but the 14px
+     inset is gone. That padding sat inside a bordered box and shrank the
+     photograph twice over; with the border removed it only made the image
+     small for no reason. */
+  object-fit: contain;
+  padding: 0;
+  transition: transform 0.5s;
+}
+.wf-col-tile:hover .bg img { transform: scale(1.05); }
+.wf-col-tile .cap {
+  flex: 0 0 auto;
+  padding: 10px 0 2px;
+  border-top: none;
+  text-align: center;
+}
+.wf-col-tile .cap .h {
+  display: block;
+  font-family: var(--wf-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  color: var(--wf-ink);
+  text-wrap: balance;
+}
+.wf .wf-col-tile.big .cap .h { font-size: 1.05rem; }
+.wf-col-tile small {
+  display: block;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.56rem;
+  color: var(--wf-ink-soft);
+  margin-bottom: 4px;
+}
+
+/* All-categories page: equal tiles, no lead card. Reuses .wf-col-tile so a
+   category looks the same here as it does in the home grid. */
+.wf-category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+.wf-category-grid .wf-col-tile { min-height: 300px; }
+.wf-muted { color: var(--wf-ink-soft); }
+
+@media (max-width: 1024px) {
+  .wf-category-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 700px) {
+  .wf-category-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .wf-category-grid .wf-col-tile { min-height: 220px; }
+}
+
+.wf-editorial { display: grid; grid-template-columns: 1fr 1fr; align-items: stretch; }
+.wf-editorial .img { min-height: 520px; background: var(--wf-cream-2); position: relative; }
+.wf-editorial .img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.wf-editorial .txt {
+  background: var(--wf-deep);
+  color: #ece7dc;
+  padding: 70px clamp(28px, 5vw, 80px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.wf-editorial .txt .wf-eyebrow { color: var(--wf-accent); }
+.wf-editorial .txt h2 { color: #fff; margin: 14px 0 18px; }
+.wf-editorial .txt p { color: #bdb7a8; margin-bottom: 16px; }
+.wf-editorial .txt .wf-link-arrow { color: var(--wf-accent); width: fit-content; margin-top: 12px; }
+
+.wf-campaign {
+  position: relative;
+  min-height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+  background: var(--wf-brand);
+  overflow: hidden;
+}
+.wf-campaign .bg { position: absolute; inset: 0; z-index: 0; }
+.wf-campaign .bg img { width: 100%; height: 100%; object-fit: cover; }
+.wf-campaign::after { content: ''; position: absolute; inset: 0; background: rgb(0 0 0 / 45%); z-index: 1; }
+.wf-campaign .inner { position: relative; z-index: 2; max-width: 560px; padding: 0 24px; }
+.wf-campaign h2 { color: #fff; }
+.wf-campaign p { color: #f1ece2; margin: 12px 0 24px; }
+
+.wf-stat-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center; }
+.wf-stat .num { font-family: var(--wf-serif); font-size: 1.85rem; color: var(--wf-accent-deep); line-height: 1; }
+.wf-stat .lab { font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wf-ink-soft); margin-top: 8px; }
+
+.wf-reviews { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--wf-line); background: var(--wf-paper); }
+.wf-review-card { padding: 34px; border-right: 1px solid var(--wf-line); }
+.wf-review-card:last-child { border-right: none; }
+.wf-review-card p {
+  color: var(--wf-ink-soft);
+  font-style: italic;
+  font-family: var(--wf-serif);
+  font-size: 1.1rem;
+  margin: 14px 0 18px;
+}
+.wf-review-who { font-weight: 600; font-size: 0.82rem; }
+.wf-review-who small {
+  display: block;
+  color: var(--wf-accent-deep);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.66rem;
+  margin-top: 2px;
+}
+
+.wf-media-strip { display: flex; gap: 48px; justify-content: center; align-items: center; flex-wrap: wrap; opacity: 0.6; }
+.wf-media-strip span { font-family: var(--wf-serif); font-size: 1.05rem; color: var(--wf-ink-soft); }
+
+/* ==========================================================================
+   CATEGORY (Design 1 sidebar system)
+   ========================================================================== */
+.wf-cat-banner { background: var(--wf-deep); color: #fff; padding: 56px 0; position: relative; overflow: hidden; }
+.wf-cat-banner .bg { position: absolute; inset: 0; z-index: 0; }
+.wf-cat-banner .bg img { width: 100%; height: 100%; object-fit: cover; }
+.wf-cat-banner::after { content: ''; position: absolute; inset: 0; background: rgb(0 0 0 / 45%); z-index: 1; }
+.wf-cat-banner .wf-wrap { position: relative; z-index: 2; }
+.wf-cat-banner .wf-eyebrow { color: var(--wf-accent); }
+.wf-cat-banner h1 { font-size: clamp(1.5rem, 2.4vw, 2rem); margin: 12px 0 10px; color: #fff; }
+.wf-cat-banner p { color: #efeadf; max-width: 540px; }
+
+.wf-shop-layout { display: grid; grid-template-columns: 260px 1fr; gap: 38px; padding: 18px 0 80px; }
+
+.wf-shop-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 18px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--wf-line);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.wf-shop-toolbar .count { font-size: 0.85rem; color: var(--wf-ink-soft); }
+.wf-shop-toolbar select {
+  padding: 9px 14px;
+  border-radius: 30px;
+  border: 1px solid var(--wf-line);
+  background: var(--wf-paper);
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: var(--wf-ink);
+}
+.wf-active-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+.wf-chip {
+  background: var(--wf-cream-2);
+  border: 1px solid var(--wf-line);
+  border-radius: 30px;
+  padding: 6px 14px;
+  font-size: 0.76rem;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+.wf-chip b { cursor: pointer; color: var(--wf-sale); }
+.wf-clear-all { font-size: 0.76rem; color: var(--wf-accent-deep); text-decoration: underline; align-self: center; }
+
+.wf-filters { position: sticky; top: 90px; align-self: start; }
+.wf-filter-backdrop, .wf-filter-close { display: none; }
+.wf-filter-group { border-bottom: 1px solid var(--wf-line); padding: 18px 0; }
+.wf-filter-group:first-child { padding-top: 0; }
+.wf-filter-group h4 {
+  font-family: var(--wf-sans);
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wf-ink);
+  margin: 0 0 14px;
+  display: flex;
+  justify-content: space-between;
+}
+.wf-filter-group h4 span { color: var(--wf-ink-soft); }
+.wf-filter-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 0.86rem;
+  color: var(--wf-ink-soft);
+  cursor: pointer;
+}
+.wf-filter-opt input { accent-color: var(--wf-accent); width: 15px; height: 15px; }
+.wf-filter-opt .n { margin-left: auto; font-size: 0.74rem; color: var(--wf-ink-soft); }
+.wf-filter-cat-list a { display: block; padding: 6px 0; font-size: 0.86rem; color: var(--wf-ink-soft); }
+.wf-filter-cat-list a.on { color: var(--wf-accent-deep); font-weight: 600; }
+.wf-filter-cat-list a:hover { color: var(--wf-accent-deep); }
+/* Colour facet. A swatch plus its name, because the names in this catalogue
+   ("Maroon" vs "Coffee", "Navy Blue" vs "Royal Blue") are not distinguishable
+   from a dot alone, and prints have no colour to show at all. */
+.wf-colour-list { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
+.wf-colour-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  margin: 0 -8px;
+  border-radius: var(--wf-radius-sm);
+  font-size: 0.86rem;
+  color: var(--wf-ink-soft);
+  cursor: pointer;
+}
+.wf-colour-opt:hover { background: var(--wf-cream-2); color: var(--wf-accent-deep); }
+.wf-colour-opt.on { color: var(--wf-accent-deep); font-weight: 600; }
+.wf-colour-dot {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid var(--wf-line);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 55%);
+}
+.wf-colour-opt.on .wf-colour-dot { box-shadow: 0 0 0 2px var(--wf-accent); }
+/* Colour is multi-select; the box says so before the shopper clicks. */
+.wf-colour-check {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--wf-line);
+  border-radius: 3px;
+  background: #fff;
+  color: #fff;
+  transition: background-color .12s ease, border-color .12s ease;
+}
+.wf-colour-opt:hover .wf-colour-check { border-color: var(--wf-accent); }
+.wf-colour-opt.on .wf-colour-check {
+  background: var(--wf-accent);
+  border-color: var(--wf-accent);
+}
+.wf-colour-name { min-width: 0; }
+.wf-colour-opt .n { margin-left: auto; font-size: 0.74rem; color: var(--wf-ink-soft); }
+
+.wf-price-inputs { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+.wf-price-inputs input {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--wf-line);
+  border-radius: var(--wf-radius-sm);
+  font-family: inherit;
+  font-size: 0.82rem;
+}
+
+.wf-pagination { display: flex; justify-content: center; gap: 8px; margin-top: 48px; }
+.wf-pagination a, .wf-pagination span {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--wf-line);
+  font-size: 0.85rem;
+  color: var(--wf-ink-soft);
+}
+.wf-pagination .on { background: var(--wf-deep); color: #fff; border-color: var(--wf-deep); }
+.wf-pagination a:hover:not(.on) { border-color: var(--wf-accent); color: var(--wf-accent-deep); }
+.wf-filter-toggle { display: none; }
+
+/* ==========================================================================
+   PRODUCT
+   ========================================================================== */
+.wf-pdp { display: grid; grid-template-columns: 1.15fr 1fr; gap: 60px; padding: 16px 0 70px; align-items: start; }
+.wf-gallery { align-self: start; }
+/* The gallery is pinned while the buy column and its detail panels scroll.
+   `.wf-pdp` already sets `align-items: start`, so this cell keeps its content
+   height and the sticky range is the grid row — i.e. it releases at the end of
+   the product section, just before "You may also like". `top` matches
+   `.wf-filters` so both clear the sticky header by the same amount. */
+.wf-pdp-media { position: sticky; top: 90px; align-self: start; }
+/* Portrait garment shots: a taller frame and no inner padding show the piece as
+   large as `contain` allows without cropping it. Same surface as the card grid,
+   so what letterboxing remains is the same colour in both places. */
+.wf-main-img {
+  aspect-ratio: 3 / 4;
+  border-radius: var(--wf-radius);
+  overflow: hidden;
+  background: var(--wf-paper);
+  border: 1px solid var(--wf-line);
+  position: relative;
+}
+.wf-main-img img { width: 100%; height: 100%; object-fit: contain; padding: 0; }
+.wf-main-img .wf-badge { position: absolute; top: 16px; left: 16px; z-index: 2; }
+.wf-thumbs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 12px; }
+.wf-thumb {
+  aspect-ratio: 1 / 1;
+  border-radius: var(--wf-radius-sm);
+  border: 1px solid var(--wf-line);
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--wf-paper);
+  padding: 0;
+}
+.wf-thumb.on { border-color: var(--wf-accent); box-shadow: 0 0 0 1px var(--wf-accent); }
+.wf-thumb img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+
+.wf-pdp-sku {
+  margin-top: 6px;
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  color: var(--wf-ink-soft);
+}
+/* `.wf-pdp-cat` removed with the category label above the product title —
+   the breadcrumb already carries that information. */
+/* Product titles here are long, descriptive Amazon-style strings ("… 40 GSM
+   White 20x24in – Pack of 100, 200"), so the wireframe's display size is far
+   too big for them. Kept at a readable heading size instead. */
+/* Written as `.wf h1.wf-pdp-title` on purpose: `.wf h1` above is specificity
+   (0,1,1) and would otherwise beat a bare `.wf-pdp-title` (0,1,0), keeping the
+   5rem display size. */
+.wf h1.wf-pdp-title,
+.wf .wf-pdp-title {
+  font-family: var(--wf-sans);
+  font-size: clamp(1.25rem, 1.6vw, 1.6rem);
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: 0;
+  margin: 8px 0 12px;
+}
+/* Stock badge, inline at the end of the product title. */
+.wf-stock-badge {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  /* Green reads as available at a glance; the gold it used to use was the
+     same colour as the decorative hairlines and carried no meaning. */
+  background: color-mix(in srgb, var(--wf-now) 14%, transparent);
+  color: var(--wf-now);
+  font-family: var(--wf-sans);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.wf-stock-badge.out {
+  background: color-mix(in srgb, var(--wf-was) 14%, transparent);
+  color: var(--wf-sale);
+}
+
+/* 22px below this row left a visible hole under "In Stock" on a phone, with
+   the SKU floating alone beneath it. Tightened so rating, stock and SKU read
+   as one block. */
+/* Social proof, set as a pill rather than a line of small grey text — it is
+   the one thing on the page written by somebody other than us. */
+.wf-pdp-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--wf-ink);
+  background: color-mix(in srgb, var(--wf-sale) 10%, transparent);
+  border-radius: 999px;
+  padding: 5px 14px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.wf-pdp-rating a { color: var(--wf-brand); text-decoration: underline; }
+/* Same reading order and the same three colours as the product card, so the
+   price does not change meaning between the grid and the page: struck price
+   first in black with a red rule, then what you pay in green, then the
+   saving in a wine pill. */
+.wf-pdp-price { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.wf-pdp-price .now {
+  font-family: var(--wf-serif);
+  font-size: 1.55rem;
+  font-weight: 600;
+  color: var(--wf-now);
+}
+.wf-pdp-price .was {
+  order: -1;
+  text-decoration: line-through;
+  text-decoration-color: var(--wf-was);
+  text-decoration-thickness: 1.5px;
+  color: var(--wf-ink);
+  font-size: 0.95rem;
+}
+/* Sits inline, to the right of the two prices. An earlier attempt pushed it
+   onto its own line with `flex-basis: 100%`, which stretched it into a
+   full-width bar across the column — `width: fit-content` does not win
+   against a flex basis. */
+.wf-pdp-price .off {
+  background: var(--wf-sale);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.wf-tax-note { font-size: 0.76rem; color: var(--wf-ink-soft); margin: 4px 0 24px; }
+.wf-pdp-desc { color: var(--wf-ink-soft); margin-bottom: 26px; }
+
+.wf-opt-block { margin-bottom: 22px; }
+.wf-opt-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--wf-ink);
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+.wf-opt-label em { font-style: normal; color: var(--wf-ink-soft); text-transform: none; letter-spacing: 0; }
+/* Size Guide, under the size pills. Was an underlined link opposite the
+   "SIZE" heading, which read as fine print rather than a control. */
+.wf .wf-size-guide-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 10px;
+  padding: 7px 14px;
+  border: 1px solid var(--wf-line);
+  border-radius: 999px;
+  background: var(--wf-paper);
+  color: var(--wf-accent-deep);
+  font-family: inherit;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+.wf .wf-size-guide-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+.wf .wf-size-guide-btn:hover {
+  border-color: var(--wf-accent-deep);
+  background: var(--wf-cream-2);
+}
+.wf .wf-size-guide-btn:focus-visible {
+  outline: 2px solid var(--wf-accent);
+  outline-offset: 2px;
+}
+.wf-opt-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+/* S / M / L / XL are one or two characters, so the generous padding made
+   each box far wider than its content needed. A colour pill carries a
+   thumbnail and keeps its own size below. */
+.wf-opt-pill {
+  min-width: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--wf-line);
+  border-radius: 2px;
+  font-size: 0.78rem;
+  background: var(--wf-paper);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.wf-opt-pill.on { border-color: var(--wf-deep); background: var(--wf-deep); color: #fff; }
+/* Unavailable option: an X struck across the whole pill rather than a line
+   through the text, so the size stays readable underneath. Drawn with two
+   gradient diagonals on pseudo-elements — no extra markup, and it sits over the
+   colour thumbnail on image pills too. */
+.wf-opt-pill.soldout {
+  position: relative;
+  color: var(--wf-ink-soft);
+  text-decoration: none;
+  cursor: not-allowed;
+}
+.wf-opt-pill.soldout::before,
+.wf-opt-pill.soldout::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.55;
+}
+.wf-opt-pill.soldout::before {
+  background: linear-gradient(
+    to top right,
+    transparent calc(50% - 0.75px),
+    currentColor calc(50% - 0.75px),
+    currentColor calc(50% + 0.75px),
+    transparent calc(50% + 0.75px)
+  );
+}
+.wf-opt-pill.soldout::after {
+  background: linear-gradient(
+    to bottom right,
+    transparent calc(50% - 0.75px),
+    currentColor calc(50% - 0.75px),
+    currentColor calc(50% + 0.75px),
+    transparent calc(50% + 0.75px)
+  );
+}
+.wf-opt-note {
+  margin: 8px 0 0;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: var(--wf-ink-soft);
+}
+.wf-opt-swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+.wf-opt-sw { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--wf-line); cursor: pointer; padding: 0; }
+.wf-opt-sw.on { box-shadow: 0 0 0 2px var(--wf-accent); }
+
+.wf-buy-row { display: flex; gap: 14px; margin: 8px 0 12px; }
+.wf-qty { display: flex; align-items: center; border: 1px solid var(--wf-line); border-radius: 2px; }
+.wf-qty button { background: none; border: none; width: 44px; height: 100%; font-size: 1.1rem; cursor: pointer; }
+.wf-qty input { width: 42px; border: none; text-align: center; font-family: inherit; font-size: 1rem; }
+.wf-buy-row .wf-btn { flex: 1; }
+.wf-buynow { margin-bottom: 20px; }
+
+.wf-pdp-assure {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 20px 0;
+  border-top: 1px solid var(--wf-line);
+  border-bottom: 1px solid var(--wf-line);
+  margin-bottom: 22px;
+}
+.wf-pdp-assure div { font-size: 0.82rem; color: var(--wf-ink-soft); display: flex; align-items: center; gap: 8px; }
+.wf-pdp-assure .ic { color: var(--wf-accent); }
+/* Units remaining, stated beside the size that is running out. Only rendered
+   when stock is genuinely low, so it must read as information rather than as
+   a permanent countdown. */
+.wf-stock-urgency {
+  margin: 0 0 14px;
+  font-size: 1.02rem;
+  color: var(--wf-sale);
+  font-weight: 600;
+}
+.wf-stock-urgency strong { font-weight: 800; font-size: 1.12rem; }
+.wf-stock-bar {
+  display: block;
+  height: 6px;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: var(--wf-line);
+  overflow: hidden;
+}
+/* Width is set inline from the real count; the bar shortens as stock falls. */
+.wf-stock-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--wf-sale);
+}
+
+/* Recent-demand line, directly under the stock count. */
+.wf-recent-buyers {
+  margin: -6px 0 14px;
+  font-size: 0.8rem;
+  color: var(--wf-ink-soft);
+}
+
+/* The three promises that decide the purchase, sitting under the price.
+   Label-only and a single row tall: the icon rides beside the text rather
+   than above it, which is what kept this block short. */
+.wf-trust-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin: 12px 0 18px;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--wf-line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--wf-line);
+}
+.wf-trust-strip li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 8px;
+  text-align: center;
+  background: var(--wf-cream-2);
+}
+.wf-trust-strip svg {
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
+  color: var(--wf-accent-deep);
+}
+.wf-trust-strip strong {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--wf-ink);
+  line-height: 1.25;
+}
+/* Narrow phones cannot fit icon + label side by side three across. */
+@media (max-width: 420px) {
+  .wf-trust-strip li { flex-direction: column; gap: 5px; padding: 12px 6px; }
+  .wf-trust-strip strong { font-size: 0.72rem; }
+  .wf-trust-strip svg { width: 20px; height: 20px; }
+}
+
+.wf-pdp-assure .wf-assure-strong {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--wf-ink);
+  grid-column: 1 / -1;
+}
+
+.wf-pincode { display: flex; gap: 10px; margin-bottom: 10px; max-width: 380px; }
+/* Inline validation for a malformed pincode. The delivery answer itself
+   opens a dialog — see .wf-delivery-panel. */
+.wf-pincode-result {
+  margin: 0 0 20px;
+  font-size: 0.85rem;
+}
+.wf-pincode-result .bad { color: var(--wf-sale); font-weight: 600; }
+
+/* Delivery dialog. Shares the size-guide backdrop and panel chrome, so the
+   two dialogs on this page look and behave the same; only the width and the
+   body styling differ. */
+.wf-delivery-panel { max-width: 460px; }
+.wf-delivery-body { padding: 20px 24px 24px; }
+.wf-delivery-headline {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--wf-ink);
+}
+.wf-delivery-headline strong { color: var(--wf-accent-deep); font-weight: 800; }
+.wf-delivery-to {
+  margin: 2px 0 16px;
+  font-size: 0.82rem;
+  color: var(--wf-ink-soft);
+}
+.wf-delivery-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--wf-line);
+}
+.wf-delivery-list li {
+  position: relative;
+  padding: 9px 0 9px 24px;
+  border-bottom: 1px solid var(--wf-line);
+  font-size: 0.86rem;
+  color: var(--wf-ink);
+}
+.wf-delivery-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 2px;
+  color: var(--wf-accent-deep);
+  font-weight: 700;
+}
+.wf-delivery-note {
+  margin: 14px 0 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--wf-ink-soft);
+}
+.wf-delivery-bad {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--wf-ink);
+}
+.wf-delivery-bad strong { color: var(--wf-sale); }
+.wf-pincode input { flex: 1; padding: 12px 16px; border: 1px solid var(--wf-line); border-radius: 2px; font-family: inherit; font-size: 0.85rem; }
+
+/* Accordions — per the client note these sit under the gallery, left column */
+.wf-accordion { margin-top: 34px; }
+.wf-acc-item { border-bottom: 1px solid var(--wf-line); }
+.wf-acc-item:first-child { border-top: 1px solid var(--wf-line); }
+.wf-acc-head {
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 18px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--wf-serif);
+  font-size: 1.15rem;
+  color: var(--wf-ink);
+  cursor: pointer;
+}
+.wf-acc-head .pm { color: var(--wf-accent); font-size: 1.3rem; }
+.wf-acc-body { padding: 0 0 20px; color: var(--wf-ink-soft); font-size: 0.9rem; }
+.wf-acc-body ul { margin: 0; padding-left: 18px; }
+
+.wf-sticky-buy {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--wf-paper);
+  border-top: 1px solid var(--wf-line);
+  box-shadow: 0 -8px 30px rgb(31 42 54 / 10%);
+  transform: translateY(110%);
+  transition: transform 0.3s;
+  z-index: 55;
+}
+.wf-sticky-buy.show { transform: translateY(0); }
+.wf-sticky-inner { max-width: var(--wf-maxw); margin: 0 auto; padding: 12px 28px; display: flex; align-items: center; gap: 18px; }
+.wf-sticky-inner .si-img { width: 48px; height: 48px; border-radius: 3px; background: var(--wf-cream-2); overflow: hidden; }
+.wf-sticky-inner .si-info b { display: block; font-family: var(--wf-serif); font-size: 1rem; }
+.wf-sticky-inner .si-info span { font-size: 0.85rem; color: var(--wf-ink-soft); }
+.wf-sticky-inner .si-actions { margin-left: auto; display: flex; gap: 10px; }
+
+.wf-review-summary { display: grid; grid-template-columns: 220px 1fr; gap: 40px; align-items: center; padding: 30px 0; }
+.wf-rs-score { text-align: center; }
+.wf-rs-score .big { font-family: var(--wf-serif); font-size: 2.4rem; line-height: 1; color: var(--wf-accent-deep); }
+.wf-rs-bars { display: grid; gap: 8px; }
+.wf-rs-bar { display: flex; align-items: center; gap: 10px; font-size: 0.78rem; color: var(--wf-ink-soft); }
+.wf-rs-bar .track { flex: 1; height: 7px; background: var(--wf-cream-2); border-radius: 6px; overflow: hidden; }
+.wf-rs-bar .track i { display: block; height: 100%; background: var(--wf-accent); }
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .wf-product-grid { grid-template-columns: repeat(3, 1fr); }
+  .wf-footer-top { grid-template-columns: 1fr 1fr; }
+  .wf-trust-grid { grid-template-columns: repeat(3, 1fr); row-gap: 26px; }
+  .wf-trust-item:nth-child(3n + 1) { border-left: 0; }
+  .wf-mega-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .wf-collections {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: none;
+    min-height: 0;
+  }
+  .wf-col-tile { min-height: 300px; }
+  .wf-col-tile.big { grid-row: span 1; grid-column: span 2; min-height: 340px; }
+  .wf-editorial { grid-template-columns: 1fr; }
+  .wf-editorial .img { min-height: 320px; }
+  .wf-reviews { grid-template-columns: 1fr; }
+  .wf-review-card { border-right: none; border-bottom: 1px solid var(--wf-line); }
+  .wf-stat-strip { grid-template-columns: 1fr 1fr; gap: 30px; }
+  .wf-hero-side { display: none; }
+  .wf-shop-layout { grid-template-columns: 1fr; }
+  .wf-filter-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 89;
+    border: 0;
+    background: rgb(0 0 0 / 48%);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+  .wf-filter-backdrop.open { opacity: 1; visibility: visible; }
+  .wf-filters {
+    display: block;
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 90;
+    width: min(88vw, 420px);
+    padding: 28px 24px;
+    overflow-y: auto;
+    background: var(--wf-paper);
+    box-shadow: 12px 0 36px rgb(0 0 0 / 18%);
+    transform: translateX(-105%);
+    transition: transform 0.25s ease;
+  }
+  .wf-filters.open { transform: translateX(0); }
+  .wf-filter-close {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    margin: -12px 0 18px auto;
+    place-items: center;
+    border: 1px solid var(--wf-line);
+    border-radius: 50%;
+    background: var(--wf-paper);
+    color: var(--wf-ink);
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+  .wf-filter-toggle { display: inline-flex; }
+  .wf-pdp { grid-template-columns: 1fr; gap: 30px; }
+  .wf-pdp-media { position: static; }
+  .wf-review-summary { grid-template-columns: 1fr; gap: 20px; }
+  .wf-sticky-inner .si-info { display: none; }
+}
+
+@media (max-width: 768px) {
+  .wf-header-inner { grid-template-columns: auto 1fr auto; }
+  .wf-nav-left { display: none; }
+  .wf-nav-right { gap: 16px; }
+  /* A 28px gutter each side took 14% of a phone screen before the grid even
+     started, and the product photograph paid for all of it. At 12px each
+     card in the 2-up grid gains ~16px of width. Everything that breaks out
+     of the wrap reads the same variable, so nothing drifts out of line. */
+  :root { --wf-gutter: 12px; }
+  .wf-product-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .wf-product-scroller { grid-auto-columns: minmax(200px, 240px); gap: 14px; }
+  .wf-trust-grid { grid-template-columns: repeat(2, 1fr); row-gap: 24px; }
+  .wf-trust-item:nth-child(3n + 1) { border-left: 1px solid var(--wf-line); }
+  .wf-trust-item:nth-child(odd) { border-left: 0; }
+  .wf-footer-top { grid-template-columns: 1fr; gap: 28px; }
+  .wf-section { padding: 52px 0; }
+  /* The link stays on the right, level with the heading, rather than
+     stacking under it: dropped below, it read as a third line of the
+     heading and pushed the first product row further down every section.
+     `white-space: nowrap` on .wf-link-arrow already keeps it on one line, so
+     only the heading needs to be the part that gives way. */
+  .wf-section-head { flex-direction: row; align-items: flex-end; gap: 12px; }
+  .wf-section-head .htext { min-width: 0; }
+  .wf-section-head .wf-link-arrow { flex: 0 0 auto; font-size: 0.66rem; }
+  .wf-thumbs { grid-template-columns: repeat(4, 1fr); }
+
+  /*
+    A modest trim of the vertical rhythm on the product page.
+
+    Each of these was tuned for a desktop column with room to spare; stacked
+    on a phone they added up to a lot of scrolling between the photograph
+    and Add to Cart. Reduced by roughly a third each rather than collapsed —
+    the blocks still need to read as separate blocks.
+  */
+  .wf-breadcrumb { padding: 12px 0 6px; }
+  .wf-pdp { padding: 10px 0 40px; }
+  .wf-opt-block { margin-bottom: 14px; }
+  .wf-buy-row { margin: 6px 0 10px; }
+  .wf-buynow { margin-bottom: 14px; }
+  .wf-pdp-assure { padding: 13px 0; margin-bottom: 14px; }
+  .wf-trust-strip { margin: 10px 0 14px; }
+  .wf-stock-urgency { margin-bottom: 10px; }
+
+  /*
+    Product imagery runs the full width of the phone.
+
+    The gallery sat inside `.wf-wrap`'s 28px gutter AND inside a bordered,
+    rounded card, so the photograph — the thing being sold — was boxed twice
+    and shrank to the middle of the screen. Competitors run it edge to edge
+    and the product reads far larger for it.
+
+    The negative margin cancels the wrap gutter exactly, and reads it from the
+    same variable so the two cannot drift apart. Only the main image breaks
+    out — the thumbnails below stay within the gutter so they remain tappable
+    away from the screen edge.
+  */
+  .wf-pdp-media {
+    margin-left: calc(-1 * var(--wf-gutter));
+    margin-right: calc(-1 * var(--wf-gutter));
+  }
+  .wf-main-img {
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+  .wf-thumbs {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+}
+
+/* Colour options render as a picture plus its name. `.wf` prefixes keep these
+   above the base `.wf button` rules, which are (0,1,1) and would otherwise win. */
+.wf .wf-opt-pill-img {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 4px;
+}
+.wf .wf-opt-pill-img img {
+  width: 38px;
+  height: 38px;
+  border-radius: 3px;
+  /* Contain, not cover: these are full-length product photographs, and a 38px
+     centre-crop of one shows mostly the white backdrop — every colour swatch
+     came out looking identical. Its own white ground keeps the chip readable
+     when the pill goes dark on selection. */
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid var(--wf-line);
+  display: block;
+  flex: none;
+}
+
+/* ---------- Campaign banner ---------- */
+/* Held to the same measure as every section rather than running full-bleed, so
+   the artwork lines up with the product grids above and below it. */
+.wf-banner {
+  display: block;
+  max-width: var(--wf-maxw);
+  margin: 0 auto;
+  padding: 0 28px;
+  background: transparent;
+  line-height: 0;
+}
+.wf-banner picture { display: block; border-radius: var(--wf-radius); overflow: hidden; }
+/* The hero runs edge to edge; only the in-page campaign banners are held to
+   the section measure. */
+.wf-banner-full { max-width: none; padding: 0; }
+.wf-banner-full picture { border-radius: 0; }
+.wf-banner img { width: 100%; height: auto; display: block; }
+
+@media (max-width: 700px) {
+  .wf-collections { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .wf-col-tile { min-height: 220px; }
+  .wf-trust-bar { margin-bottom: 36px; }
+  /* The lead tile ran full width and pushed the rest of the grid a whole
+     screen down. On a phone the four equal tiles below it are the card, so
+     the lead one is dropped rather than stacked. Its image is `lazy`, and a
+     lazy image inside `display: none` is never fetched, so hiding it here
+     costs the phone nothing. */
+  .wf-col-tile.big { display: none; }
+  .wf-col-tile .cap { padding: 10px 8px 12px; }
+  .wf-col-tile .cap .h { font-size: 0.84rem; }
+  .wf-banner { padding: 0 16px; }
+}
+
+/* ---------- Gallery swipe controls ---------- */
+/* `.wf` prefixes keep these above the base `.wf button` rules, which are (0,1,1). */
+.wf .wf-main-img { position: relative; touch-action: pan-y; }
+.wf .wf-main-img:focus-visible { outline: 2px solid var(--wf-accent); outline-offset: 3px; }
+.wf .wf-gal-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--wf-line);
+  background: rgb(255 255 255 / 88%);
+  color: var(--wf-ink);
+  cursor: pointer;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+}
+.wf .wf-gal-nav.prev { left: 12px; }
+.wf .wf-gal-nav.next { right: 12px; }
+.wf .wf-gal-nav svg { width: 20px; height: 20px; display: block; }
+.wf .wf-gal-nav:hover { background: #fff; }
+.wf-gallery:hover .wf-gal-nav,
+.wf .wf-gal-nav:focus-visible { opacity: 1; }
+/* Touch devices have no hover, so the arrows were hidden here and the dots
+   were left to signal "there is more". They are now shown permanently
+   instead: swiping is undiscoverable, and almost all traffic is on a phone,
+   so the one place the arrows were suppressed was the one place they are
+   needed. Kept slightly translucent so they sit over the artwork. */
+@media (hover: none) {
+  .wf .wf-gal-nav {
+    opacity: 1;
+    width: 34px;
+    height: 34px;
+    background: rgb(255 255 255 / 80%);
+  }
+}
+.wf-gal-dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  z-index: 3;
+}
+.wf-gal-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgb(20 16 12 / 26%);
+  transition: background 0.2s, transform 0.2s;
+}
+.wf-gal-dots span.on { background: var(--wf-accent-deep); transform: scale(1.35); }
+
+/* ---------- Age gate ---------- */
+.wf-age-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--wf-deep, #101317);
+}
+.wf-age-gate-panel {
+  width: min(460px, 100%);
+  background: #fff;
+  border-radius: var(--wf-radius, 6px);
+  padding: 34px 30px 28px;
+  text-align: center;
+  box-shadow: 0 30px 70px -40px rgb(0 0 0 / 60%);
+}
+.wf-age-gate-panel h2 {
+  font-family: var(--wf-serif);
+  font-size: 1.4rem;
+  color: var(--wf-ink);
+  margin: 0 0 10px;
+}
+.wf-age-gate-panel p {
+  color: var(--wf-ink-soft);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+.wf-age-gate-actions { display: flex; flex-direction: column; gap: 10px; }
+.wf-age-gate-actions .wf-btn { width: 100%; justify-content: center; }
+.wf-age-gate-note {
+  font-size: 0.78rem;
+  color: var(--wf-ink-faint, var(--wf-ink-soft));
+  margin: 18px 0 0;
+}
+
+/* Reviews: the reviews themselves, under the score.
+   The product page used to render only the summary, so what a customer
+   actually wrote never reached the storefront. */
+.wf-review-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 18px; }
+.wf-review-list li {
+  border-top: 1px solid var(--wf-line);
+  padding-top: 18px;
+}
+.wf-review-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 0.86rem;
+  margin-bottom: 4px;
+}
+.wf-review-head time { color: var(--wf-ink-soft); font-size: 0.78rem; margin-left: auto; }
+.wf-review-verified {
+  background: var(--wf-now, #166534);
+  color: #fff;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.wf-review-list p { margin: 6px 0 0; font-size: 0.9rem; line-height: 1.6; }
+
+.wf-review-form {
+  border: 1px solid var(--wf-line);
+  background: var(--wf-surface, #fff);
+  padding: 20px;
+  margin: 18px 0 6px;
+}
+.wf-review-form form { display: grid; gap: 14px; }
+.wf-review-form label { display: grid; gap: 6px; font-size: 0.82rem; font-weight: 600; }
+.wf-review-form input,
+.wf-review-form select,
+.wf-review-form textarea {
+  font: inherit;
+  font-weight: 400;
+  padding: 10px 12px;
+  border: 1px solid var(--wf-line);
+  background: #fff;
+  color: var(--wf-ink);
+  border-radius: 4px;
+  width: 100%;
+}
+.wf-review-form textarea { resize: vertical; }
+.wf-review-error { color: #b91c1c; font-size: 0.82rem; margin: 0; }

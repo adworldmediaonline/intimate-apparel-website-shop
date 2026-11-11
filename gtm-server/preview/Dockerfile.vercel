@@ -1,0 +1,14 @@
+# Server-side Google Tag Manager — PREVIEW server.
+#
+# Same image as the tagging server, flipped into preview mode. This is the
+# service GTM's "Preview" / debug pane talks to; it holds the debug session in
+# memory, which is why Google says to run exactly one instance of it.
+FROM gcr.io/cloud-tagging-10302018/gtm-cloud-image:stable
+
+ENV RUN_AS_PREVIEW_SERVER=true
+ENV PORT=8080
+
+# CONTAINER_CONFIG must be set on the Vercel project, and must be byte-identical
+# to the tagging server's — a mismatch makes preview silently attach to nothing.
+
+EXPOSE 8080

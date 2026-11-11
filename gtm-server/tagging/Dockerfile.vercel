@@ -1,0 +1,22 @@
+# Server-side Google Tag Manager — TAGGING server.
+#
+# Google publishes the tagging server as a Node.js app inside this image; we do
+# not build anything ourselves, we only re-tag it so Vercel can run it as a
+# container Function. `:stable` is Google's own rolling tag — pin it to a dated
+# tag if you would rather approve upgrades yourself.
+FROM gcr.io/cloud-tagging-10302018/gtm-cloud-image:stable
+
+# This image is the tagging server, not the preview server. Baked in here rather
+# than set as a project environment variable because Vercel environment
+# variables are project-wide, and the preview server needs the opposite value.
+ENV RUN_AS_PREVIEW_SERVER=false
+
+# Vercel routes traffic to $PORT and defaults to 80. The image reads PORT too,
+# so the two agree without further configuration.
+ENV PORT=8080
+
+# CONTAINER_CONFIG and PREVIEW_SERVER_URL are NOT baked in — set them as
+# environment variables on the Vercel project (see ../README.md). CONTAINER_CONFIG
+# identifies your GTM container and should be treated as a secret.
+
+EXPOSE 8080

@@ -1,0 +1,6 @@
+EAAOu6ualVYUBSZA3eDMEZBfgEiyvxvSJ6z9AvuUMGFgiaWog0UthHMbNY9ET9ZAZBfUqTzBPKn6CtSpDZCmrohFJEMiJ2ALCOtdyGTFzPZAiNYi6ZCZByBFZCdwy24NtXNP5KR9sg5brfeM7tMZCGlbFi7LUyXmNaLFxqGY56bFUyVwLZCXZCG6ZCeCRZCVQqXyWLTey3g1wZDZD
+
+
+aWQ9R1RNLU1UVk5OUEs3JmVudj0yJmF1dGg9NUxVTXdDS0ZpemtaU1FHMGhWSTJKUQ==
+
+https://developers.google.com/tag-platform/tag-manager/server-side/manual-setup-guide
