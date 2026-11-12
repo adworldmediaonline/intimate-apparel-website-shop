@@ -46,3 +46,6 @@ next-env.d.ts
 CHECKOUT_FEATURES.md
 # next-agents-md
 .next-docs/
+
+# Vercel env dump — holds REVALIDATION_SECRET.
+.env.web
