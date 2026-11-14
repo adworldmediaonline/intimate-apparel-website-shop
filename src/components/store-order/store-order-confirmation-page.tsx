@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -30,24 +29,23 @@ import { StoreOrderNotFound } from './store-order-not-found';
 import { StoreOrderSnapshotGrid } from './store-order-snapshot-card';
 import { computeOrderDiscountBreakdown } from './store-order-utils';
 
+/**
+ * shop.unwrapher.com keeps the shopper on the receipt.
+ *
+ * This differs from the main site's copy of this file, which forwards to
+ * /track-order after a visible countdown. Here the receipt is the last step:
+ * the tracking link below is there for anyone who wants it, and nobody is
+ * moved off the page they just paid on.
+ */
 interface StoreOrderConfirmationPageProps {
   /** Dynamic segment from the server page: `const { id } = await params` */
   orderId: string;
 }
 
-/**
- * How long the receipt stays on screen before moving the shopper on to order
- * tracking. Long enough to read the order number and total, short enough that
- * nobody is left wondering what happens next.
- */
-const REDIRECT_AFTER_SECONDS = 8;
-
 export const StoreOrderConfirmationPage = ({
   orderId,
 }: StoreOrderConfirmationPageProps) => {
-  const router = useRouter();
   const { isError, isPending, orderDoc } = useStoreOrder(orderId);
-  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
 
   const access = useConfirmationAccessGuard(orderId);
 
@@ -95,37 +93,12 @@ export const StoreOrderConfirmationPage = ({
     });
   }, [access, orderDoc, orderId]);
 
-  /**
-   * Auto-forward to order tracking.
-   *
-   * Deliberately started only once `orderDoc` has arrived: the purchase event
-   * fires on that same condition, and leaving the page before it ran would
-   * lose the conversion. The countdown is shown rather than silent, and any
-   * link on the page still works during it.
-   */
-  useEffect(() => {
-    if (!orderDoc || isError) return;
-
-    setSecondsLeft(REDIRECT_AFTER_SECONDS);
-    const tick = setInterval(() => {
-      setSecondsLeft(current => (current === null ? null : current - 1));
-    }, 1000);
-    const jump = setTimeout(() => {
-      router.replace(`/track-order/${encodeURIComponent(orderId)}`);
-    }, REDIRECT_AFTER_SECONDS * 1000);
-
-    return () => {
-      clearInterval(tick);
-      clearTimeout(jump);
-    };
-  }, [orderDoc, isError, orderId, router]);
-
   if (!orderId) {
     return <StoreOrderNotFound />;
   }
 
   // Hold the skeleton while the guard decides, so a receipt never flashes up
-  // for somebody who is about to be sent to tracking.
+  // for somebody who is not entitled to see it.
   if (access === 'checking' || isPending) {
     return <StoreOrderLoading />;
   }
@@ -183,23 +156,6 @@ export const StoreOrderConfirmationPage = ({
                   Thank you for your purchase! Your order has been successfully
                   placed.
                 </p>
-                {/* The forward is announced rather than silent, and the link
-                    lets anyone who wants it skip the wait. */}
-                {secondsLeft !== null && secondsLeft > 0 && (
-                  <p className="mt-3 text-sm text-muted-foreground">
-                    Taking you to order tracking in{' '}
-                    <span className="font-semibold text-foreground">
-                      {secondsLeft}
-                    </span>{' '}
-                    second{secondsLeft === 1 ? '' : 's'} ·{' '}
-                    <Link
-                      href={`/track-order/${encodeURIComponent(orderId)}`}
-                      className="underline"
-                    >
-                      go now
-                    </Link>
-                  </p>
-                )}
               </div>
             </div>
           </CardHeader>
