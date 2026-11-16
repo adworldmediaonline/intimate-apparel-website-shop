@@ -107,15 +107,21 @@ export default function ShippingPage() {
               <div className="flex items-start gap-3">
                 <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <p className="text-muted-foreground leading-relaxed">
-                  All orders placed before 2:00 PM IST are dispatched the same
-                  business day.
+                  Orders placed and confirmed with complete product, payment and
+                  delivery details before 2:00 PM IST are normally dispatched
+                  the same business day, subject to stock availability and
+                  pickup operations.
                 </p>
               </div>
               <div className="flex items-start gap-3">
                 <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <p className="text-muted-foreground leading-relaxed">
-                  Orders placed after 2:00 PM IST are dispatched on the next
-                  business day.
+                  Confirmed orders placed after 2:00 PM IST are normally
+                  dispatched the next business day. Where payment was captured
+                  but the order or key details are missing, dispatch remains on
+                  hold until customer confirmation. Non-response alone does not
+                  trigger an automatic refund; legal exceptions are handled
+                  under the Returns Policy.
                 </p>
               </div>
               <div className="flex items-start gap-3">
@@ -157,10 +163,13 @@ export default function ShippingPage() {
               <div className="flex items-start gap-3">
                 <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <p className="text-muted-foreground leading-relaxed">
-                  If an inventory discrepancy occurs after an order is placed, our
-                  team will contact you promptly to discuss available options,
-                  including waiting for restocking, selecting an alternative
-                  product, or receiving a refund.
+                  If an inventory discrepancy prevents us from supplying an
+                  ordered product, our team will contact the customer promptly
+                  to offer the choice of waiting for restocking, accepting a
+                  suitable alternative, or receiving a refund for the
+                  unavailable item. We will not treat an unavailable product as
+                  non-refundable solely because payment has already been
+                  collected.
                 </p>
               </div>
             </CardContent>
@@ -370,10 +379,14 @@ export default function ShippingPage() {
                 issue and assist in resolving it as quickly as possible.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                If you have not received your package within 10 business days of
-                the expected delivery date, please contact us. After verifying the
-                shipment status with the carrier, we will provide a replacement
-                shipment if the package is confirmed lost or cannot be delivered.
+                If you have not received your package within 10 business days
+                after the expected delivery date, please contact us so we can
+                investigate with the carrier. If the shipment is confirmed lost
+                or cannot be delivered, we will offer a replacement or a refund
+                to the original payment method, as appropriate and subject to
+                applicable law. This 10-business-day contact guideline does not
+                remove any rights arising from non-delivery or an unreasonable
+                delivery delay.
               </p>
             </CardContent>
           </Card>

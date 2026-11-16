@@ -188,9 +188,12 @@ export default function TermsPage() {
                 current, or error-free.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                We reserve the right to correct any errors, update information,
-                or cancel orders if any information is inaccurate at any time
-                without prior notice.
+                We may correct inaccurate product or pricing information and
+                contact affected customers about necessary changes. If we cannot
+                fulfil an order as agreed and cancel it, any amount already
+                collected for the cancelled items will be refunded to the
+                original payment method, subject to applicable law. We will
+                notify the customer of the cancellation.
               </p>
             </CardContent>
           </Card>
@@ -210,6 +213,19 @@ export default function TermsPage() {
                 order is placed. Online payments are processed securely through
                 third-party payment gateways. We do not store your full card
                 number, CVV or UPI PIN.
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                <span className="font-semibold text-foreground">
+                  Payment Captured Without an Order Record:
+                </span>{' '}
+                If a technical error prevents an order from being recorded after
+                successful payment, we will verify the payment and request the
+                product and shipping details from the customer. Dispatch remains
+                on hold until the customer confirms the required details. Under
+                our standard policy, customer non-response alone does not
+                trigger a refund. Any payment dispute, cancellation request, or
+                inability to fulfil the transaction will be reviewed under the
+                Refund and Return Policy and applicable law.
               </p>
               <p className="text-muted-foreground leading-relaxed">
                 All prices are listed in Indian Rupees ({CURRENCY}) and are
@@ -247,6 +263,25 @@ export default function TermsPage() {
                 . Customers are encouraged to review these policies before
                 placing an order. By placing an order, you agree to the
                 applicable terms and conditions outlined in these policies.
+              </p>
+              <p className="text-muted-foreground leading-relaxed mt-4">
+                Where order confirmation is incomplete after payment, customers
+                must share their payment reference, intended products, sizes,
+                colours and delivery address with{' '}
+                {SUPPORT_EMAIL ? (
+                  <a
+                    href={`mailto:${SUPPORT_EMAIL}`}
+                    className="text-primary hover:text-primary/80 transition-colors font-medium"
+                  >
+                    {SUPPORT_EMAIL}
+                  </a>
+                ) : (
+                  'our support team'
+                )}
+                . Dispatch is held until the details are confirmed. Non-response
+                alone does not trigger a refund under our standard policy; any
+                legally required refund or other remedy remains available under
+                applicable consumer protection law.
               </p>
             </CardContent>
           </Card>

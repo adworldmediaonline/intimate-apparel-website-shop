@@ -100,11 +100,17 @@ export default function ReturnsPage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground leading-relaxed">
-                You have{' '}
+                For eligible items, you may request a return or size exchange
+                within{' '}
                 <span className="font-semibold text-foreground">7 days</span>{' '}
-                from the date of delivery to raise a return or exchange request
-                for an eligible item. Requests raised after 7 days cannot be
-                accepted.
+                after delivery, subject to the hygiene and eligibility
+                conditions below. A 7-day request window does not mean that
+                every order qualifies for a refund. Refunds are available where
+                an incorrect, damaged or faulty item is supplied, where an order
+                is confirmed undelivered or cannot be fulfilled, where a
+                replacement promised under this policy is unavailable, or where
+                required by applicable law. This time limit does not restrict
+                any statutory consumer right.
               </p>
               <p className="text-muted-foreground leading-relaxed mt-3">
                 If your parcel arrived damaged, or the item inside is not what
@@ -191,8 +197,11 @@ export default function ReturnsPage() {
                     ℹ
                   </Badge>
                   <span className="text-muted-foreground leading-relaxed">
-                    If the size you want is unavailable, we will refund you
-                    instead.
+                    If the requested replacement size is unavailable, we will
+                    contact you to offer another suitable size or item. If no
+                    suitable replacement can be provided, we will offer a refund
+                    to your original payment method, subject to the conditions
+                    that applied when you placed the order and applicable law.
                   </span>
                 </li>
               </ul>
@@ -209,8 +218,11 @@ export default function ReturnsPage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground leading-relaxed mb-3">
-                For hygiene and safety reasons, the following cannot be returned
-                or exchanged unless they reach you damaged or faulty:
+                For hygiene and safety reasons, the following items are
+                generally not eligible for routine returns or exchanges once
+                unsealed. This restriction does not apply where the item
+                supplied is damaged, faulty or incorrect, or where a remedy is
+                required under applicable consumer protection law:
               </p>
               <ul className="space-y-2">
                 <li className="flex items-start gap-3">
@@ -330,8 +342,14 @@ export default function ReturnsPage() {
                     ✓
                   </Badge>
                   <span className="text-muted-foreground leading-relaxed">
-                    Once we receive and inspect your return, we will issue a
-                    refund to your original method of payment.
+                    Approved physical returns are refunded to the original
+                    payment method after receipt and inspection. If payment was
+                    captured but an order was not recorded, we will verify the
+                    transaction and request missing product and delivery
+                    details. No refund is initiated solely due to customer
+                    non-confirmation while the order remains on hold, except
+                    where a refund is required by law or we cannot fulfil the
+                    transaction.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
@@ -378,6 +396,44 @@ export default function ReturnsPage() {
             </CardContent>
           </Card>
 
+          {/* 6A. Payment Received, but Order Not Created or Not Confirmed */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <AlertTriangle className="w-6 h-6 text-primary" />
+                6A. Payment Received, but Order Not Created or Not Confirmed
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground leading-relaxed">
+                If a payment is captured but no complete order is recorded,{' '}
+                {BRAND_NAME} will contact the customer to confirm product names
+                or links, sizes, colours and delivery details. The customer must
+                provide these details to process the order. Until they are
+                confirmed, dispatch remains on hold. As per our standard policy,
+                we will not initiate a refund solely because the customer has
+                not provided or confirmed the required details despite follow-up
+                requests. We will keep requesting the information to complete
+                the order. This rule does not remove any remedy required by
+                applicable law, including where a technical failure prevents
+                fulfilment. No additional payment is due for an amount already
+                received.
+              </p>
+              {SUPPORT_EMAIL && (
+                <p className="text-muted-foreground leading-relaxed mt-3">
+                  Contact{' '}
+                  <a
+                    href={`mailto:${SUPPORT_EMAIL}`}
+                    className="text-primary hover:text-primary/80 transition-colors font-medium"
+                  >
+                    {SUPPORT_EMAIL}
+                  </a>{' '}
+                  for support.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Return Shipping Section */}
           <Card>
             <CardHeader>
@@ -404,9 +460,12 @@ export default function ReturnsPage() {
                     ℹ
                   </Badge>
                   <span className="text-muted-foreground leading-relaxed">
-                    Return shipping is on us when the item arrived damaged,
-                    faulty or incorrect. For a change of mind, the cost is
-                    yours.
+                    Return shipping is on us when an item arrives damaged,
+                    faulty or incorrect. For an otherwise eligible size exchange
+                    or customer-requested return not caused by our error, return
+                    shipping is borne by the customer unless otherwise required
+                    by law. For a confirmed non-delivery or payment-captured
+                    with no order case, no return shipment is required.
                   </span>
                 </li>
                 <li className="flex items-start gap-3">

@@ -64,7 +64,7 @@ const SECTIONS = [
       },
       {
         q: 'Can I exchange if the size is wrong?',
-        a: 'Yes. You can exchange an eligible item once within 7 days of delivery, provided the hygiene seal and tags are intact and the replacement size is in stock.',
+        a: 'Yes. You can exchange an eligible item once within 7 days of delivery, provided the hygiene seal and tags are intact and the replacement size is in stock. If that size is unavailable we will offer another suitable item, or a refund if none suits.',
       },
     ],
   },
@@ -73,7 +73,7 @@ const SECTIONS = [
     items: [
       {
         q: 'How long will my order take?',
-        a: 'Orders placed before 2:00 PM IST are dispatched the same business day. Metro cities usually receive them in 2–4 business days; other locations take 4–7. You can check delivery to your pincode from any product page.',
+        a: 'Confirmed orders placed before 2:00 PM IST are normally dispatched the same business day, subject to stock availability. Metro cities usually receive them in 2–4 business days; other locations take 4–7. You can check delivery to your pincode from any product page.',
       },
       {
         q: 'Do you deliver everywhere in India?',
@@ -115,7 +115,7 @@ const SECTIONS = [
       },
       {
         q: 'Who pays for return shipping?',
-        a: 'We do, when the item arrived damaged, faulty or incorrect. For a change of mind, the cost is yours.',
+        a: 'We do, when an item arrives damaged, faulty or incorrect. For an otherwise eligible size exchange or a return not caused by our error, the cost is yours unless the law requires otherwise.',
       },
     ],
   },
