@@ -16,13 +16,20 @@ type CartState = {
   isAutoApplied: boolean;
 };
 
-/** Free shipping/gift unlock when the product subtotal (before discount) is >= this, in the brand's currency. Mirrors the backend; the admin can override it. */
-// Mirrors FREE_SHIPPING_SUBTOTAL_THRESHOLD in the backend's
-// order.controller.js, which is the figure actually charged. Zero means every
-// order ships free — the current policy. Keep the two in step: if the
-// storefront promises a threshold the server does not apply, the shipping
-// line changes between the cart and the receipt.
-const FREE_SHIPPING_SUBTOTAL_THRESHOLD = 0;
+/**
+ * Free shipping from this amount up, measured on what is actually paid for
+ * the products: subtotal minus every discount.
+ *
+ * Mirrors FREE_SHIPPING_SUBTOTAL_THRESHOLD and SHIPPING_COST in the backend's
+ * order.controller.js, which are the figures actually charged. Keep the two in
+ * step: if the storefront promises a threshold the server does not apply, the
+ * shipping line changes between the cart and the receipt. The admin's
+ * freeShippingThreshold setting overrides the first of these when set.
+ */
+const FREE_SHIPPING_SUBTOTAL_THRESHOLD = 500;
+
+/** Flat shipping on an order below the threshold. Mirrors SHIPPING_COST. */
+const FLAT_SHIPPING_COST = 100;
 
 export type UseCartSummaryOptions = {
   /** When true, refetch shipping settings (e.g. when cart drawer opens). Ensures threshold updates from admin are reflected immediately. */
@@ -72,14 +79,20 @@ export function useCartSummary(
   const appliedCouponPercentage =
     items.find((i) => i.appliedCouponPercentage != null)?.appliedCouponPercentage ?? null;
 
-  const shippingFromCart = items.reduce(
-    (sum, item) =>
-      sum + (Number(item.shipping?.price ?? 0) * Number(item.orderQuantity || 0)),
-    0
-  );
+  /**
+   * Shipping before any tier discount: a flat charge, not the per-item
+   * `shipping.price` this used to add up. The server bills the flat figure,
+   * and a cart that quotes anything else is quoting a number the receipt will
+   * contradict.
+   */
+  const shippingFromCart = items.length > 0 ? FLAT_SHIPPING_COST : 0;
   const subtotalAfterDiscount = Math.max(0, subtotal - discountAmount);
-  // Free shipping + free T-shirt unlock from the product subtotal only, before any discount (mirrors the backend).
-  const freeShippingBasis = subtotal;
+  /**
+   * Free shipping is earned on what is actually paid, after every discount —
+   * mirrors resolveShippingCost in the backend. A coupon that pulls a 600 cart
+   * down to 450 leaves a 450 order, and a 450 order pays shipping.
+   */
+  const freeShippingBasis = subtotalAfterDiscount;
   const qualifiesForFreeShipping =
     freeShippingBasis >= freeShippingUnlockThreshold;
 
@@ -113,10 +126,13 @@ export function useCartSummary(
     freeShippingBasis < freeShippingUnlockThreshold
       ? Math.ceil(freeShippingUnlockThreshold - freeShippingBasis)
       : null;
-  const progressPercent = Math.min(
-    100,
-    Math.round((freeShippingBasis / freeShippingUnlockThreshold) * 100)
-  );
+  const progressPercent =
+    freeShippingUnlockThreshold > 0
+      ? Math.min(
+          100,
+          Math.round((freeShippingBasis / freeShippingUnlockThreshold) * 100)
+        )
+      : 100;
 
   const fetchShippingSettings = useCallback(() => {
     getStoreShippingSettings()
