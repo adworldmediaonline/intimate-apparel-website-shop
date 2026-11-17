@@ -814,3 +814,19 @@ html[data-theme='memorial'].dark,
   display: table;
   clear: both;
 }
+
+/*
+ * Product photos are not draggable, and iOS does not offer its long-press save
+ * sheet for them. Paired with ImageDownloadGuard, which blocks right-click and
+ * drag on images in script.
+ *
+ * Neither makes the images private: they are public files on a CDN, reachable
+ * by URL. This only stops the casual save.
+ */
+img,
+picture,
+canvas {
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+}

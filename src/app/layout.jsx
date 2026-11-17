@@ -10,6 +10,7 @@ import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { Suspense } from 'react';
 
 import BrandTheme from '@/components/wireframe/brand-theme';
+import ImageDownloadGuard from '@/components/common/image-download-guard';
 // import WfAgeGate from '@/components/wireframe/wf-age-gate';
 import FooterGate from '../components/version-tsx/footer-gate';
 import HeaderWrapper from '../components/version-tsx/header-wrapper';
@@ -137,6 +138,7 @@ export default function RootLayout({ children }) {
 
 
         <BrandTheme />
+        <ImageDownloadGuard />
         {/* Age confirmation popup disabled. Re-enable by uncommenting. */}
         {/* <WfAgeGate /> */}
         <Providers>
