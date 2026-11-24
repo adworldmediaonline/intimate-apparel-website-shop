@@ -20,6 +20,8 @@ export type VariantOption = {
   isSelected?: boolean;
   /** Paused in the admin: still listed, but greyed out and not buyable. */
   isPaused?: boolean;
+  /** Hidden in the admin: not rendered at all. See `isOptionHidden`. */
+  isHidden?: boolean;
   image?: string;
   /**
    * Photographs for this option, shown in the gallery when it is selected.
@@ -71,9 +73,10 @@ export function defaultVariantSelection(
 ): VariantSelection {
   const selection: VariantSelection = {};
   getVariantConfigurations(product).forEach((config, configIndex) => {
-    // Never open on an option nobody can buy: a paused or sold-out default
-    // would show a price and an Add to Cart the shopper cannot use.
-    const isBuyable = (o: VariantOption) => !o.isPaused && o.quantity !== 0;
+    // Never open on an option nobody can buy: a hidden, paused or sold-out
+    // default would show a price and an Add to Cart the shopper cannot use.
+    const isBuyable = (o: VariantOption) =>
+      !o.isHidden && !o.isPaused && o.quantity !== 0;
     const preselected = config.options.findIndex(o => o.isSelected && isBuyable(o));
     const firstBuyable = config.options.findIndex(isBuyable);
     const optionIndex =

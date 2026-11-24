@@ -32,11 +32,30 @@ export function isOptionPaused(
   return Boolean(option?.isPaused);
 }
 
-/** Cannot be bought right now, for either reason. */
-export function isOptionUnavailable(
-  option: { quantity?: number | null; isPaused?: boolean } | null | undefined
+/**
+ * Taken off the storefront: not listed, not selectable, not mentioned. Unlike
+ * a paused option, which stays on the page greyed out, a hidden one is not
+ * rendered at all — it is a colour or size the store no longer offers.
+ *
+ * The option is still in the product document, keeping its images and prices,
+ * so it can come back without being rebuilt. Hidden options must never be
+ * filtered out of `productConfigurations`: the cart keys a line on the option's
+ * index, so removing one would renumber every option after it.
+ */
+export function isOptionHidden(
+  option: { isHidden?: boolean } | null | undefined
 ): boolean {
-  return isOptionPaused(option) || isOptionOutOfStock(option);
+  return Boolean(option?.isHidden);
+}
+
+/** Cannot be bought right now, for any reason. */
+export function isOptionUnavailable(
+  option:
+    | { quantity?: number | null; isPaused?: boolean; isHidden?: boolean }
+    | null
+    | undefined
+): boolean {
+  return isOptionHidden(option) || isOptionPaused(option) || isOptionOutOfStock(option);
 }
 
 /**

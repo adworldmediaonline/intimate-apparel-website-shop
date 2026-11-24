@@ -184,7 +184,10 @@ export function WfPdpBuyBox({
    * leave Add to Cart live on whatever stayed selected.
    */
   const selectionUnavailable = Object.values(selection).some(
-    entry => entry?.option?.isPaused || entry?.option?.quantity === 0
+    entry =>
+      entry?.option?.isHidden ||
+      entry?.option?.isPaused ||
+      entry?.option?.quantity === 0
   );
 
   /**
@@ -423,6 +426,9 @@ export function WfPdpBuyBox({
       {configurations.map((config, configIndex) => {
         const current = selection[configIndex];
         const isSize = /^\s*sizes?\s*$/i.test(config.title);
+        // A configuration whose every option is hidden has nothing to choose
+        // between, so the whole block goes rather than leaving an empty label.
+        if (config.options.every(option => option.isHidden)) return null;
         return (
           <div className="wf-opt-block" key={config.title}>
             <div className="wf-opt-label">
@@ -432,6 +438,10 @@ export function WfPdpBuyBox({
             </div>
             <div className="wf-opt-pills">
               {config.options.map((option, optionIndex) => {
+                // Hidden in the admin: a colour or size the store no longer
+                // offers. Skipped rather than filtered out of the array, so
+                // every remaining option keeps the index the cart keys on.
+                if (option.isHidden) return null;
                 const soldOut = option.quantity === 0;
                 // Paused in the admin: kept on the page so a shopper can see
                 // the size exists, but not selectable.
@@ -502,7 +512,7 @@ export function WfPdpBuyBox({
 
             {/* A disabled button fires no click, so the reason has to be stated
                 in the open rather than left to a hover tooltip. */}
-            {config.options.some(o => o.isPaused) && (
+            {config.options.some(o => o.isPaused && !o.isHidden) && (
               <p className="wf-opt-note" role="status">
                 Greyed-out {config.title.toLowerCase()} options are not available
                 right now — please check back later.

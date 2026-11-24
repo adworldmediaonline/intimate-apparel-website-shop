@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { PackageX } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { isOptionOutOfStock, isOptionPaused } from '@/lib/product-stock';
+import { isOptionHidden, isOptionOutOfStock, isOptionPaused } from '@/lib/product-stock';
 import { CURRENCY_SYMBOL } from '@/lib/brand';
 
 interface ConfigurationOption {
@@ -14,6 +14,8 @@ interface ConfigurationOption {
   isSelected: boolean;
   /** Paused in the admin: listed, but greyed out and not buyable. */
   isPaused?: boolean;
+  /** Hidden in the admin: not rendered at all. See `isOptionHidden`. */
+  isHidden?: boolean;
   image?: string;
   quantity?: number | null;
 }
@@ -44,7 +46,9 @@ export default function ProductConfigurations({
     // Initialize with preselected options (include out-of-stock so they show as active for experienced users)
     const initial: { [configIndex: number]: number } = {};
     configurations.forEach((config, configIndex) => {
-      const preselectedIndex = config.options.findIndex(opt => opt.isSelected);
+      const preselectedIndex = config.options.findIndex(
+        opt => opt.isSelected && !isOptionHidden(opt)
+      );
       if (preselectedIndex !== -1) {
         initial[configIndex] = preselectedIndex;
       }
@@ -76,7 +80,7 @@ export default function ProductConfigurations({
       configurations.forEach((config, configIndex) => {
         if (config.options && config.options.length > 0) {
           const preselectedIndex = config.options.findIndex(
-            opt => opt.isSelected
+            opt => opt.isSelected && !isOptionHidden(opt)
           );
           if (preselectedIndex !== -1) {
             onConfigurationChange(
@@ -108,6 +112,12 @@ export default function ProductConfigurations({
           return null;
         }
 
+        // Every option hidden: nothing to choose between, so the whole block
+        // goes rather than leaving a title above an empty grid.
+        if (config.options.every(isOptionHidden)) {
+          return null;
+        }
+
         const selectedIndex = selectedOptions[configIndex] ?? -1;
 
         return (
@@ -120,6 +130,10 @@ export default function ProductConfigurations({
             {/* Options Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {config.options.map((option, optionIndex) => {
+                // A colour or size the store no longer offers. Skipped rather
+                // than filtered out of the array, so every option after it
+                // keeps the index the cart keys on.
+                if (isOptionHidden(option)) return null;
                 const isSelected = selectedIndex === optionIndex;
                 const hasPrice = option.price && Number(option.price) > 0;
                 const paused = isOptionPaused(option);
