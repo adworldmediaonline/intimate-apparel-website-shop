@@ -34,7 +34,7 @@ export async function generateMetadata() {
     title: `Shipping Policy | ${BRAND_NAME} – Discreet Delivery Across India`,
     description: `${BRAND_NAME} ships across India in plain, discreet packaging. Read our processing times, courier partners and delivery timelines.`,
     keywords:
-      "Unwrap Her shipping policy, lingerie, night suits, body suits, baby doll, bridal lingerie, silk lingerie, satin night wear, lace body stocking",
+      "Unwrap Her shipping policy, bridal lingerie, honeymoon nightwear, lace lingerie, bodysuit, silk lingerie, satin nightwear, lace body stocking",
     canonical: '/shipping',
   });
 }

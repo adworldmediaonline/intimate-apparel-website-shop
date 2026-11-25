@@ -27,7 +27,7 @@ export async function generateMetadata() {
   const cmsData = await getPageMetadata('about');
   return buildPageMetadata('about', cmsData, {
     title: `About Us - ${brand.identity.name}`,
-    description: `${brand.identity.name} makes silk, satin and lace lingerie, night suits, body suits and bridal intimate wear, delivered discreetly across India.`,
+    description: `${brand.identity.name} makes bridal lingerie, honeymoon nightwear, lace lingerie and bodysuits in silk and satin, delivered discreetly across India.`,
     canonical: '/about',
   });
 }
@@ -36,7 +36,7 @@ const PILLARS = [
   {
     icon: Sparkles,
     title: 'Fabric first',
-    body: 'Silk, satin and lace, chosen for how they feel against skin through a whole evening — not just for how they photograph. Soft linings, finished seams, and hardware that sits flat.',
+    body: 'Silk and satin, chosen for how they feel against skin through a whole evening — not just for how they photograph. Soft linings, finished seams, and hardware that sits flat.',
   },
   {
     icon: Ruler,
@@ -95,9 +95,9 @@ export default function AboutPage() {
           <CardContent className="py-8 space-y-4">
             <p className="text-muted-foreground leading-relaxed">
               {name} is an intimate apparel label for women in India. We make
-              lingerie, night suits, body suits, baby dolls, lace and body
-              stockings, role-play sets and bridal intimate wear — in silk,
-              satin and lace.
+              bridal lingerie, honeymoon nightwear, lace lingerie, bodysuits,
+              baby dolls, body stockings and role-play sets — in silk and
+              satin.
             </p>
             <p className="text-muted-foreground leading-relaxed">
               Buying lingerie in India has long meant one of two compromises: a

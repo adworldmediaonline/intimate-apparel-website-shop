@@ -5,6 +5,7 @@ import { getPaginatedProductsServer } from '@/server/products';
 import { getCategoriesShow } from '@/server/categories';
 import { getActiveBanners } from '@/server/banner';
 import { getHomeRows } from '@/server/home-rows';
+import { getCollections } from '@/server/collections';
 
 import BrandTheme from '@/components/wireframe/brand-theme';
 import WfHero from '@/components/wireframe/wf-hero';
@@ -12,6 +13,7 @@ import HeroBanner from '@/components/version-tsx/hero-banner';
 import WfRibbon from '@/components/wireframe/wf-ribbon';
 import WfSectionHead from '@/components/wireframe/wf-section-head';
 import WfCollectionsGrid from '@/components/wireframe/wf-collections-grid';
+import WfCollectionTiles from '@/components/wireframe/wf-collection-tiles';
 import WfProductCard from '@/components/wireframe/wf-product-card';
 import WfStatStrip from '@/components/wireframe/wf-stat-strip';
 import WfReviewsStrip from '@/components/wireframe/wf-reviews-strip';
@@ -64,7 +66,7 @@ function spreadAcrossCategories(products) {
 export default async function HomePage() {
   // Every fetch is wrapped so an unreachable backend degrades to an empty
   // section rather than a 500 — the editorial layout still renders in full.
-  const [products, categories, banners, homeRows] = await Promise.all([
+  const [products, categories, banners, homeRows, collections] = await Promise.all([
     // Enough of the catalogue to draw from every category. At 12 the page only
     // ever saw the first category or two, which is why New Arrivals came out
     // as four variations of the same thing. `slim` keeps the bigger fetch
@@ -73,6 +75,7 @@ export default async function HomePage() {
     safe(() => getCategoriesShow(), []),
     safe(() => getActiveBanners(), []),
     safe(() => getHomeRows(), {}),
+    safe(() => getCollections(), []),
   ]);
 
   const list = Array.isArray(products) ? products : (products?.data ?? []);
@@ -176,12 +179,25 @@ export default async function HomePage() {
         <section className="wf-section">
           <div className="wf-wrap">
             <WfSectionHead
-              eyebrow="Curated edits"
-              title="Shop by Collection"
+              eyebrow="Browse the range"
+              title="Shop by Category"
               linkHref="/categories"
               linkLabel="All categories"
             />
             <WfCollectionsGrid tiles={tiles} />
+          </div>
+        </section>
+      )}
+
+      {collections.length > 0 && (
+        <section className="wf-section" style={{ paddingTop: 0 }}>
+          <div className="wf-wrap">
+            <WfSectionHead
+              eyebrow="Curated for every moment"
+              title="Shop by Collection"
+              center
+            />
+            <WfCollectionTiles collections={collections} />
           </div>
         </section>
       )}

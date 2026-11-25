@@ -93,7 +93,15 @@ export function useCartSummary(
    * down to 450 leaves a 450 order, and a 450 order pays shipping.
    */
   const freeShippingBasis = subtotalAfterDiscount;
+  /**
+   * A fully discounted cart ships free.
+   *
+   * Mirrors resolveShippingCost: nothing payable is below the threshold, so
+   * the plain rule charged Rs.100 to deliver an order worth nothing — which
+   * is what stopped a 100% coupon ever producing a zero total.
+   */
   const qualifiesForFreeShipping =
+    subtotalAfterDiscount <= 0 ||
     freeShippingBasis >= freeShippingUnlockThreshold;
 
   let effectiveShippingCost: number;

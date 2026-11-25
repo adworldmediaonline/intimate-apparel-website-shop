@@ -20,7 +20,7 @@ export async function generateMetadata() {
   const cmsData = await getPageMetadata('categories');
   return buildPageMetadata('categories', cmsData, {
     title: `Shop by Category - ${BRAND_NAME}`,
-    description: `Browse every collection at ${BRAND_NAME}: bridal and honeymoon, role play, baby doll, lace and body stocking, body suits, lingerie and night suits.`,
+    description: `Browse every collection at ${BRAND_NAME}: bridal lingerie, honeymoon nightwear, role play, baby doll, lace lingerie, body stockings and bodysuits.`,
     canonical: '/categories',
   });
 }

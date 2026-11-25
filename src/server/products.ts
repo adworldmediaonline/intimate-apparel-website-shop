@@ -24,7 +24,8 @@ export async function getPaginatedProductsServer(
     category?: string;
     subcategory?: string;
     color?: string;
-    homeRow?: 'bestsellers' | 'new-arrivals';
+    /** Any curated list key: the two built-in rows, or a collection. */
+    homeRow?: string;
     sortBy?: string;
     sortOrder?: string;
     /**

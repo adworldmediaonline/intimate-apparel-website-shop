@@ -1877,3 +1877,142 @@
 }
 .wf-review-form textarea { resize: vertical; }
 .wf-review-error { color: #b91c1c; font-size: 0.82rem; margin: 0; }
+
+/* ============================================================
+   Shop by Collection — wide banner tiles.
+
+   The cover photograph sits under a colour wash: an admin-chosen photo can
+   be any brightness, and white type laid straight on one is a coin toss.
+   Multiply lays the brand hue over it; the second gradient darkens the foot,
+   where the text actually sits.
+   ============================================================ */
+.wf-coll-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.wf-coll-tile {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: var(--wf-radius);
+  min-height: 186px;
+  text-decoration: none;
+  color: #fff;
+  border: 1px solid rgb(0 0 0 / 8%);
+  /* Contain the multiply blend below, so it tints the cover photograph and
+     stops there instead of reaching the page behind the tile. */
+  isolation: isolate;
+  /* Shown when a collection has no cover photograph yet. Dark on purpose:
+     the type on this tile is white, and a pale fallback left the title
+     unreadable until somebody uploaded a picture. */
+  background: linear-gradient(120deg, var(--wf-deep), var(--wf-brand));
+}
+
+.wf-coll-tile .cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.wf-coll-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, var(--tint) 0%, var(--tint-2) 55%, rgb(0 0 0 / 18%) 100%);
+  mix-blend-mode: multiply;
+}
+
+.wf-coll-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* The foot carries the title, tagline, label and button, so it is darkened
+     far enough up to cover all four. A shallower scrim looked fine against a
+     dark photograph and left white type sitting on mid-tone against a bright
+     one. */
+  background: linear-gradient(
+    to top,
+    rgb(0 0 0 / 68%) 0%,
+    rgb(0 0 0 / 52%) 40%,
+    rgb(0 0 0 / 14%) 72%,
+    rgb(0 0 0 / 0%) 100%
+  );
+}
+
+/* Four tints off the brand palette, rotating so neighbours differ. */
+.wf-coll-tile.tint-0 { --tint: #7a2340; --tint-2: var(--wf-brand); }
+.wf-coll-tile.tint-1 { --tint: var(--wf-brand); --tint-2: #8a2a46; }
+.wf-coll-tile.tint-2 { --tint: #4a1226; --tint-2: #8a5a4a; }
+.wf-coll-tile.tint-3 { --tint: #8a5a2b; --tint-2: var(--wf-accent); }
+
+.wf-coll-tile .body {
+  position: relative;
+  /* Above both the tint and the scrim — the text is what they exist to make
+     readable, so it must never be painted under them. */
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  min-height: 186px;
+  height: 100%;
+  padding: 0.9rem 1rem 1rem;
+}
+
+.wf-coll-tile .icon {
+  font-size: 1.1rem;
+  line-height: 1;
+  filter: drop-shadow(0 1px 3px rgb(0 0 0 / 55%));
+}
+.wf-coll-tile .spacer { flex: 1; }
+
+.wf-coll-tile .title {
+  font-family: var(--wf-serif);
+  font-weight: 600;
+  font-size: 1.15rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  /* Tight and dark rather than a wide glow: a 10px spread on 17px caps ate
+     the letterforms and read as grey. */
+  text-shadow: 0 1px 3px rgb(0 0 0 / 70%);
+}
+
+.wf-coll-tile .tagline {
+  font-style: italic;
+  font-size: 0.8rem;
+  color: rgb(255 255 255 / 92%);
+  text-shadow: 0 1px 3px rgb(0 0 0 / 60%);
+  margin-bottom: 0.35rem;
+}
+
+.wf-coll-tile .to {
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 82%);
+  text-shadow: 0 1px 3px rgb(0 0 0 / 60%);
+  margin-bottom: 0.6rem;
+}
+
+.wf-coll-tile .cta {
+  border: 1px solid rgb(255 255 255 / 70%);
+  border-radius: var(--wf-radius-sm);
+  text-align: center;
+  padding: 0.35rem;
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: rgb(0 0 0 / 22%);
+}
+
+.wf-coll-tile:hover .cta,
+.wf-coll-tile:focus-visible .cta {
+  background: rgb(255 255 255 / 14%);
+}
+
+@media (max-width: 720px) {
+  .wf-coll-tiles { grid-template-columns: 1fr; }
+}

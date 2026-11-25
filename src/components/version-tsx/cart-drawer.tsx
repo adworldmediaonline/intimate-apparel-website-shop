@@ -22,6 +22,7 @@ import {
 } from '@/components/version-tsx/cart';
 import BogoCrossSell from '@/components/version-tsx/cart/bogo-cross-sell';
 import CartCouponRow from '@/components/version-tsx/cart/cart-coupon-row';
+import HaveACouponRow from '@/components/version-tsx/cart/have-a-coupon-row';
 import BogoProgress from '@/components/version-tsx/cart/bogo-progress';
 import { useBogo } from '@/hooks/use-bogo';
 import { CURRENCY_SYMBOL } from '@/lib/brand';
@@ -65,6 +66,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
               {/* After the free item: the coupon applies to what is left
                   being paid for, so this is the order it is decided in. */}
               <CartCouponRow />
+              <HaveACouponRow />
               {((summary.isAutoApplied && summary.discountAmount > 0 && summary.autoApplyPercent > 0) ||
                 (summary.productLevelSavings > 0 && summary.productLevelPercent > 0)) && (
                 <AutoApplySavingsBanner

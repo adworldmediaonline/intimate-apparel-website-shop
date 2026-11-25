@@ -7,6 +7,7 @@ import { getPageMetadata } from '@/server/page-metadata';
 import { getPaginatedProductsServer, getProductColours } from '@/server/products';
 import { enrichProductsWithDisplayPrices } from '@/server/enrich-products';
 import { getCategories } from '@/lib/server-data';
+import { getCollection } from '@/server/collections';
 import { DEFAULT_SHOP_SORT, resolveShopSort } from '@/lib/shop-sort';
 
 import BrandTheme from '@/components/wireframe/brand-theme';
@@ -51,11 +52,33 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   // An unknown `sort` value falls back to Featured rather than 404ing or
   // passing an arbitrary field name through to the database.
   const sort = resolveShopSort(params?.sort?.trim());
-  const collection = ['bestsellers', 'new-arrivals'].includes(
-    params?.collection?.trim() ?? ''
-  )
-    ? (params?.collection?.trim() as 'bestsellers' | 'new-arrivals')
+  /**
+   * Any curated list the admin has made, not only the two built-in rows:
+   * every collection is a HomeRow, so /shop?collection=honeymoon resolves the
+   * same way /shop?collection=bestsellers always has.
+   *
+   * The key is shaped here rather than trusted — it reaches a database query,
+   * and the backend rejects a key with no document behind it.
+   */
+  const requestedCollection = (params?.collection ?? '').trim().toLowerCase();
+  const collection = /^[a-z0-9-]{1,60}$/.test(requestedCollection)
+    ? requestedCollection
     : undefined;
+
+  // Its title and tagline, for the heading and the crumb. Null for the two
+  // built-in rows, which have no collection document of their own.
+  const collectionMeta = collection ? await getCollection(collection) : null;
+
+  /** What this collection is called on screen. */
+  const collectionLabel =
+    collectionMeta?.title ??
+    (collection === 'bestsellers'
+      ? 'Bestsellers'
+      : collection === 'new-arrivals'
+        ? 'New Arrivals'
+        : collection
+          ? collection.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+          : '');
 
   const filters = {
     category: params?.category?.trim() || undefined,
@@ -127,11 +150,9 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     ? `Results for "${filters.search}"`
     : activeNames.length
       ? activeNames.map(filterLabel).join(', ')
-      : collection === 'bestsellers'
-        ? 'Bestsellers'
-        : collection === 'new-arrivals'
-          ? 'New Arrivals'
-          : 'Shop All';
+      : collection
+        ? collectionLabel
+        : 'Shop All';
 
   const sidebarCategories = sortByCategoryOrder(
     catList as any[],
@@ -214,7 +235,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     })),
     ...(collection
       ? [{
-          label: collection === 'bestsellers' ? 'Bestsellers' : 'New Arrivals',
+          label: collectionLabel,
           href: (() => {
             const q = new URLSearchParams();
             if (filters.category) q.set('category', filters.category);

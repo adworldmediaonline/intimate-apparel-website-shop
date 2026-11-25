@@ -17,6 +17,7 @@ import {
 } from '@/components/version-tsx/cart';
 import CheckoutPromoSection from './checkout-promo-section';
 import CartCouponRow from '@/components/version-tsx/cart/cart-coupon-row';
+import HaveACouponRow from '@/components/version-tsx/cart/have-a-coupon-row';
 import BogoProgress from '@/components/version-tsx/cart/bogo-progress';
 import BogoCrossSell from '@/components/version-tsx/cart/bogo-cross-sell';
 import CheckoutCouponList from './checkout-coupon-list';
@@ -381,6 +382,10 @@ export default function CheckoutOrderArea({ checkoutData, variant = 'full' }) {
           {/* Every usable coupon, independent of the per-coupon
               `showInCheckoutPromo` flag that the banner below depends on. */}
           <CheckoutCouponList disabled={isDisabled} />
+
+          {/* A code handed out by hand appears on no list, so there has to be
+              somewhere to type one. Collapsed until asked for. */}
+          <HaveACouponRow />
 
           {promo.promoCoupon && (
             <CheckoutPromoSection

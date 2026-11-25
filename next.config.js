@@ -30,6 +30,33 @@ const nextConfig = {
     return [];
   },
 
+  /**
+   * Keep the Vercel deployment URLs out of Google.
+   *
+   * Every deployment is reachable at a `*.vercel.app` host as well as at
+   * shop.unwrapher.com, serving the same pages. Vercel marks *preview* deployments
+   * noindex, but the production one is left alone, so its `.vercel.app`
+   * address gets crawled and indexed as a duplicate of the real site. The
+   * canonical tags point home, but a canonical is a hint and Google indexes
+   * these anyway once anything links to them.
+   *
+   * `noindex` is sent as a header rather than a robots.txt Disallow on
+   * purpose: a blocked URL is one Google may never fetch again, so it would
+   * never see the instruction and the stale entry would sit in the index.
+   * Previews stay usable for the team — people can still open them, only
+   * search engines are told to drop them.
+   */
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: '.*\\.vercel\\.app' }],
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
+    ];
+  },
+
+
   cacheComponents: true,
   reactCompiler: true,
 
