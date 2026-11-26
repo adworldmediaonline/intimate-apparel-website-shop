@@ -13,6 +13,7 @@ type CartState = {
   cart_products: CartItemType[];
   couponCode: string | null;
   discountAmount: number;
+  couponWaivesShipping?: boolean;
   isAutoApplied: boolean;
 };
 
@@ -46,7 +47,7 @@ export function useCartSummary(
 ): CartSummary & { quantity: number } {
   const { refetchWhen } = options ?? {};
   const { subtotal, quantity } = useCartInfo();
-  const { cart_products, couponCode, discountAmount, isAutoApplied } =
+  const { cart_products, couponCode, discountAmount, isAutoApplied, couponWaivesShipping } =
     useSelector((s: { cart: CartState }) => s.cart);
   const [shippingSettings, setShippingSettings] = useState<{
     freeShippingThreshold: number | null;
@@ -100,7 +101,14 @@ export function useCartSummary(
    * the plain rule charged Rs.100 to deliver an order worth nothing — which
    * is what stopped a 100% coupon ever producing a zero total.
    */
+  /**
+   * A token-price coupon (UWH1) waives delivery outright: the coupon has set
+   * the whole price, so there is no delivery charge to add underneath it.
+   * Mirrors the `shippingWaived` argument to resolveShippingCost, which is
+   * what the server actually bills — this only keeps the cart honest about it.
+   */
   const qualifiesForFreeShipping =
+    Boolean(couponWaivesShipping) ||
     subtotalAfterDiscount <= 0 ||
     freeShippingBasis >= freeShippingUnlockThreshold;
 

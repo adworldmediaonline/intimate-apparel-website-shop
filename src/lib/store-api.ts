@@ -89,7 +89,17 @@ export function pickBestOffer(
 }
 
 export type ValidateDiscountResult =
-  | { valid: true; discountAmount: number; message?: string }
+  | {
+      valid: true;
+      discountAmount: number;
+      /**
+       * A token-price coupon: it sets the whole price, delivery included, so
+       * the cart shows no shipping line. Display only — the backend decides
+       * the charge again from the coupon record at checkout.
+       */
+      waivesShipping?: boolean;
+      message?: string;
+    }
   | { valid: false; message: string };
 
 async function getStoreCouponSettingsInternal(): Promise<CouponBehaviorSettings> {
@@ -189,6 +199,7 @@ export async function validateStoreDiscount(
     return {
       valid: true,
       discountAmount: data.data.discount,
+      waivesShipping: Boolean(data.data.waivesShipping),
       message: data.message,
     };
   }

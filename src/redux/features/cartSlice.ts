@@ -47,6 +47,12 @@ interface CartState {
   discountAmount: number;
   /** When true, discount was auto-applied (show "X% OFF applied" instead of discount line) */
   isAutoApplied: boolean;
+  /**
+   * The applied coupon sets the whole price, delivery included, so the cart
+   * shows no shipping line. Display only: the server decides the charge from
+   * the coupon record, not from this.
+   */
+  couponWaivesShipping: boolean;
 }
 
 const initialState: CartState = {
@@ -58,6 +64,7 @@ const initialState: CartState = {
   couponCode: null,
   discountAmount: 0,
   isAutoApplied: false,
+  couponWaivesShipping: false,
 };
 
 export const cartSlice = createSlice({
@@ -230,6 +237,7 @@ export const cartSlice = createSlice({
       state.couponCode = null;
       state.discountAmount = 0;
       state.isAutoApplied = false;
+      state.couponWaivesShipping = false;
 
       setLocalStorage('cart_products', state.cart_products);
       setLocalStorage('applied_coupon', null);
@@ -242,11 +250,13 @@ export const cartSlice = createSlice({
         code: string;
         discountAmount: number;
         isAutoApplied?: boolean;
+        waivesShipping?: boolean;
       }>
     ) => {
       state.couponCode = payload.code;
       state.discountAmount = payload.discountAmount;
       state.isAutoApplied = payload.isAutoApplied ?? false;
+      state.couponWaivesShipping = payload.waivesShipping ?? false;
       /**
        * Persisted alongside the cart, because the coupon belongs to the cart.
        * It used to live only in memory, which was survivable when checkout
@@ -257,18 +267,25 @@ export const cartSlice = createSlice({
         code: state.couponCode,
         discountAmount: state.discountAmount,
         isAutoApplied: state.isAutoApplied,
+        waivesShipping: state.couponWaivesShipping,
       });
     },
     removeCoupon: state => {
       state.couponCode = null;
       state.discountAmount = 0;
       state.isAutoApplied = false;
+      state.couponWaivesShipping = false;
       setLocalStorage('applied_coupon', null);
     },
     /** Restore the applied coupon after a navigation or a reload. */
     get_applied_coupon: state => {
       const saved = getLocalStorage('applied_coupon') as
-        | { code?: string; discountAmount?: number; isAutoApplied?: boolean }
+        | {
+            code?: string;
+            discountAmount?: number;
+            isAutoApplied?: boolean;
+            waivesShipping?: boolean;
+          }
         | null
         | unknown[];
       // getLocalStorage seeds [] for a missing key, so an array means "none".
@@ -276,6 +293,7 @@ export const cartSlice = createSlice({
       state.couponCode = (saved as any).code;
       state.discountAmount = Number((saved as any).discountAmount) || 0;
       state.isAutoApplied = Boolean((saved as any).isAutoApplied);
+      state.couponWaivesShipping = Boolean((saved as any).waivesShipping);
     },
     openCartMini: state => {
       state.cartMiniOpen = true;

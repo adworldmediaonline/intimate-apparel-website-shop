@@ -157,6 +157,7 @@ export function useAvailableCoupons() {
             code,
             discountAmount: result.discountAmount,
             isAutoApplied: false,
+            waivesShipping: result.waivesShipping,
           })
         );
         return true;

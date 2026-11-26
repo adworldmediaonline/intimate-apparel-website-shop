@@ -86,6 +86,9 @@ export function useCouponRevalidation() {
               code: couponCode,
               discountAmount: result.discountAmount,
               isAutoApplied: Boolean(isAutoApplied),
+              // Carried through, or revalidating the cart would quietly put
+              // the delivery charge back on a token-price order.
+              waivesShipping: result.waivesShipping,
             })
           );
         }
