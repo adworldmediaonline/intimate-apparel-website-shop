@@ -14,7 +14,7 @@ export type Collection = {
 };
 
 /**
- * The Shop by Collection tiles.
+ * The Shop by Occasion tiles.
  *
  * Returns an empty list on any failure, and the home page then draws no
  * section at all — an unreachable backend should cost the page one block,

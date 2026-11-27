@@ -4,7 +4,7 @@ import { cloudinarySrcSet, cloudinaryVariant } from '@/lib/product-image';
 import type { Collection } from '@/server/collections';
 
 /**
- * Shop by Collection: wide banner tiles, two across.
+ * Shop by Occasion: wide banner tiles, two across.
  *
  * Each tile is a cover photograph under a colour wash. The wash is what makes
  * the white type legible — a photograph chosen in the admin can be any

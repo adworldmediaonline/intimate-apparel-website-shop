@@ -194,7 +194,7 @@ export default async function HomePage() {
           <div className="wf-wrap">
             <WfSectionHead
               eyebrow="Curated for every moment"
-              title="Shop by Collection"
+              title="Shop by Occasion"
               center
             />
             <WfCollectionTiles collections={collections} />
