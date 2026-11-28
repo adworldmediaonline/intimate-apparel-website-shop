@@ -1,3 +1,4 @@
+import { cacheLife, cacheTag } from 'next/cache';
 import { SITE_URL } from '@/lib/brand';
 import Script from 'next/script';
 import Link from 'next/link';
@@ -45,13 +46,74 @@ type ShopPageProps = {
 
 const PAGE_SIZE = 12;
 
+/**
+ * The page itself: reads the query string, and does nothing else.
+ *
+ * Request data cannot be read inside a cached component, so the split is the
+ * point — this half touches `searchParams`, the half below renders. Every
+ * filter combination is then cached under its own key and reused.
+ */
 export default async function ShopPage({ searchParams }: ShopPageProps) {
   const params = await searchParams;
-  const page = Math.max(1, Number(params?.page) || 1);
+  return (
+    <ShopBody
+      page={Math.max(1, Number(params?.page) || 1)}
+      sortKey={params?.sort?.trim() ?? ''}
+      category={params?.category?.trim() ?? ''}
+      subcategory={params?.subcategory?.trim() ?? ''}
+      color={params?.color?.trim() ?? ''}
+      search={params?.search?.trim() ?? ''}
+      collection={params?.collection?.trim() ?? ''}
+    />
+  );
+}
+
+type ShopBodyProps = {
+  page: number;
+  sortKey: string;
+  category: string;
+  subcategory: string;
+  color: string;
+  search: string;
+  collection: string;
+};
+
+/**
+ * Everything the shop draws, cached per filter combination.
+ *
+ * The fetches below were already cached; the render was not, so a crawler
+ * walking /shop paid to rebuild the same HTML from the same data hundreds of
+ * times an hour. Keyed by these seven plain values, so two shoppers looking
+ * at the same filters are served one render.
+ *
+ * Tagged with what it reads, so an admin edit busts it at once rather than
+ * waiting for the window to run out.
+ */
+async function ShopBody({
+  page,
+  sortKey,
+  category,
+  subcategory,
+  color,
+  search,
+  collection: collectionParam,
+}: ShopBodyProps) {
+  'use cache';
+  cacheLife('days');
+  cacheTag('products', 'categories', 'home-rows');
+
+  const params = {
+    category,
+    subcategory,
+    color,
+    search,
+    collection: collectionParam,
+    sort: sortKey,
+  };
 
   // An unknown `sort` value falls back to Featured rather than 404ing or
   // passing an arbitrary field name through to the database.
-  const sort = resolveShopSort(params?.sort?.trim());
+  const sort = resolveShopSort(sortKey);
   /**
    * Any curated list the admin has made, not only the two built-in rows:
    * every collection is a HomeRow, so /shop?collection=honeymoon resolves the

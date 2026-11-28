@@ -1,3 +1,4 @@
+import { cacheLife } from 'next/cache';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -36,7 +37,16 @@ export async function generateMetadata() {
   });
 }
 
-export default function SizeGuidePage() {
+/**
+ * Cached. This page reads nothing at request time, and under Cache Components
+ * a page without `'use cache'` is rendered again for every single request —
+ * so a scraper walking the site paid for a fresh render of the terms page
+ * several times a minute. A deploy is the only thing that changes this copy.
+ */
+export default async function SizeGuidePage() {
+  'use cache';
+  cacheLife('max');
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">

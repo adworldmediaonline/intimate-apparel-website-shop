@@ -1,3 +1,4 @@
+import { cacheLife, cacheTag } from 'next/cache';
 import brand from '@/lib/brand';
 import { getPageMetadata } from '@/server/page-metadata';
 import { buildPageMetadata } from '@/lib/build-page-metadata';
@@ -63,7 +64,22 @@ function spreadAcrossCategories(products) {
   return spread;
 }
 
+/**
+ * Cached as a whole page, not just its fetches.
+ *
+ * Each fetch below was already cached, but under Cache Components the page
+ * itself still re-rendered for every request — the data came from memory and
+ * the HTML was built again from scratch, which is what the CPU and origin
+ * transfer on the bill were paying for.
+ *
+ * Tagged with everything it draws from, so an admin edit busts this page the
+ * same moment it busts the data underneath it.
+ */
 export default async function HomePage() {
+  'use cache';
+  cacheLife('days');
+  cacheTag('products', 'categories', 'banners', 'home-rows');
+
   // Every fetch is wrapped so an unreachable backend degrades to an empty
   // section rather than a 500 — the editorial layout still renders in full.
   const [products, categories, banners, homeRows, collections] = await Promise.all([

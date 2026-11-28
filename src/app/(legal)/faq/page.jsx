@@ -1,3 +1,4 @@
+import { cacheLife } from 'next/cache';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -133,7 +134,16 @@ const FAQ_SCHEMA = {
   ),
 };
 
-export default function FaqPage() {
+/**
+ * Cached. This page reads nothing at request time, and under Cache Components
+ * a page without `'use cache'` is rendered again for every single request —
+ * so a scraper walking the site paid for a fresh render of the terms page
+ * several times a minute. A deploy is the only thing that changes this copy.
+ */
+export default async function FaqPage() {
+  'use cache';
+  cacheLife('max');
+
   return (
     <div className="min-h-screen bg-background">
       <Script

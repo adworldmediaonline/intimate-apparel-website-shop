@@ -1,3 +1,4 @@
+import { cacheLife } from 'next/cache';
 import Script from 'next/script';
 import ContactPage from '../../components/version-tsx/contact/contact-form';
 import { getPageMetadata } from '@/server/page-metadata';
@@ -35,7 +36,16 @@ export async function generateMetadata() {
   });
 }
 
-export default function Contact() {
+/**
+ * Cached. This page reads nothing at request time, and under Cache Components
+ * a page without `'use cache'` is rendered again for every single request —
+ * so a scraper walking the site paid for a fresh render of the terms page
+ * several times a minute. A deploy is the only thing that changes this copy.
+ */
+export default async function Contact() {
+  'use cache';
+  cacheLife('max');
+
   const jsonLd = JSON.stringify(CONTACT_SCHEMA).replace(/</g, '\\u003c');
 
   return (
