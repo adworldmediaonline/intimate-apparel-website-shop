@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import store from '@/redux/store';
 import { clearCart } from '@/redux/features/cartSlice';
 import { useCartActions } from '@/hooks/use-cart-actions';
+import { useBogo } from '@/hooks/use-bogo';
 import {
   CartEmptyState,
   CartItemCard,
@@ -43,6 +44,7 @@ export default function CartArea() {
   const dispatch = useDispatch();
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
   const { handleIncrement, handleDecrement, handleRemove } = useCartActions();
+  const bogo = useBogo();
 
   const items = Array.isArray(cart_products) ? (cart_products as CartItemType[]) : [];
 
@@ -144,6 +146,10 @@ export default function CartArea() {
                       key={`${item._id}-${item.selectedOption?.title ?? ''}-${idx}`}
                       item={item}
                       lineTotal={getCartItemLineTotal(item)}
+                      /* The summary below already deducts the offer; without
+                         this the page took money off the total without ever
+                         saying which item earned it. */
+                      freeUnits={bogo.freeByProduct[String(item._id)] ?? 0}
                       onIncrement={handleIncrement}
                       onDecrement={handleDecrement}
                       onRemove={handleRemove}

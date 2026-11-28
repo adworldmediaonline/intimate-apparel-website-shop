@@ -63,6 +63,27 @@ export function CartItemCard({
       : 0;
   const hasMarkdown =
     markedValue > 0 && Number.isFinite(lineTotalValue) && markedValue > lineTotalValue;
+
+  /*
+    What this line actually costs once the offer has taken its free units.
+
+    A line of two with one free is not a free line. Striking the whole total
+    told the shopper both were on the house, and the Order Summary below then
+    charged for one of them — the same cart reading two different ways on one
+    screen. So the payable part is shown as the price, and the full total is
+    struck beside it.
+
+    `freeUnits` never exceeds the line's quantity (it is a count of that
+    line's own units), so this cannot go negative; the max() is there for a
+    malformed quote rather than for arithmetic.
+  */
+  const lineQuantity = Math.max(1, Number(item.orderQuantity) || 1);
+  const unitValue = Number.isFinite(lineTotalValue) ? lineTotalValue / lineQuantity : 0;
+  const freeValue = Math.min(freeUnits, lineQuantity) * unitValue;
+  const payableValue = Math.max(0, (lineTotalValue || 0) - freeValue);
+  /** True only when every unit on the line is free. */
+  const wholeLineFree = freeUnits > 0 && payableValue <= 0.005;
+  const payableLabel = payableValue.toFixed(2);
   const markedLineTotal = hasMarkdown ? markedValue.toFixed(2) : null;
 
   /** Long product titles are clamped to one line until tapped. */
@@ -207,16 +228,23 @@ export function CartItemCard({
             which of their items was the free one. */}
         {freeUnits > 0 && (
           <span className="mb-1 inline-block rounded-full bg-[var(--wf-sale)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-            {freeUnits > 1 ? `${freeUnits} free` : 'Free'}
+            {wholeLineFree && freeUnits === 1 ? 'Free' : `${freeUnits} free`}
           </span>
         )}
         <span
           className={`block font-bold tabular-nums ${isCompact ? 'text-sm' : 'text-base'} ${
-            freeUnits > 0 ? 'text-muted-foreground line-through' : 'text-foreground'
+            wholeLineFree ? 'text-muted-foreground line-through' : 'text-foreground'
           }`}
         >
-          {CURRENCY_SYMBOL}{lineTotal}
+          {CURRENCY_SYMBOL}{wholeLineFree ? lineTotal : payableLabel}
         </span>
+        {/* Only when part of the line is free: the full total, struck, so the
+            saving on this line is visible without doing the subtraction. */}
+        {freeUnits > 0 && !wholeLineFree && (
+          <span className="text-muted-foreground block text-xs tabular-nums line-through">
+            {CURRENCY_SYMBOL}{lineTotal}
+          </span>
+        )}
         {/* The MRP struck through. The percentage is deliberately not
             repeated here — the Order Summary already states the saving for
             the whole order, and showing it twice on one screen read as two
